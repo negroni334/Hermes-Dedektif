@@ -1,26 +1,60 @@
-print("Merhaba Nous, ben geldim!")
-import requests
+import re
 
-def check_contract(contract_address):
-    # GoPlus Security API'sine bağlanıyoruz
-    url = f"https://api.gopluslabs.io/api/v1/token_security/1?contract_addresses={contract_address}"
-    
-    try:
-        response = requests.get(url)
-        data = response.json()
-        
-        # Basit bir güvenlik kontrolü yapalım
-        result = data.get("result", {})
-        is_honeypot = result.get(contract_address.lower(), {}).get("is_honeypot", "0")
-        
-        if is_honeypot == "1":
-            print(f"UYARI: {contract_address} adresi bir HONEYPOT (tuzak) olabilir!")
+class HermesDedektif:
+    def __init__(self):
+        # Taramak istediğimiz tehlikeli kalıplar ve açıklamaları
+        self.guvenlik_kurallari = {
+            "tx.origin": "KRİTİK UYARI: Kimlik doğrulamada 'tx.origin' kullanımı tespit edildi. Phishing (kimlik avı) saldırılarına yol açabilir! Yerine 'msg.sender' kullanılmalı.",
+            "block.timestamp": "DÜŞÜK UYARI: 'block.timestamp' veya 'now' kullanımı tespit edildi. Madenciler (miners) tarafından manipüle edilebilir, hassas rastgele sayı üretiminde kullanılmamalı.",
+            "selfdestruct": "YÜKSEK UYARI: 'selfdestruct' fonksiyonu tespit edildi. Kontratın tamamen yok edilme ve fonların kilitlenme riski var."
+        }
+
+    def kontrat_analiz_et(self, kontrat_kodu):
+        print("\n🕵️‍♂️ [Hermes Dedektif] Analiz Başlatılıyor...\n")
+        bulgular = []
+
+        # Satır satır kodu incele
+        satirlar = kontrat_kodu.split('\n')
+        for satir_no, satir in enumerate(satirlar, 1):
+            for kural, aciklama in self.guvenlik_kurallari.items():
+                if kural in satir:
+                    # Yorum satırlarını pas geçmek için basit bir kontrol
+                    if not satir.strip().startswith("//"):
+                        bulgular.append(f"📌 Satır {satir_no}: {aciklama}\n   👉 Kod: {satir.strip()}")
+
+        # Sonuçları ekrana yazdır
+        if bulgular:
+            print(f"🚨 Toplam {len(bulgular)} adet potansiyel risk tespit edildi:\n")
+            for bulgu in bulgular:
+                print(bulgu)
         else:
-            print(f"Güvenlik Analizi: {contract_address} adresi temiz görünüyor.")
-            
-    except Exception as e:
-        print(f"Bir hata oluştu: {e}")
+            print("✅ Harika! Temel güvenlik taramasında herhangi bir riskli kalıba rastlanmadı.")
 
-# Test için örnek bir kontrat adresi (PEPE token adresi)
-test_address = "0x6982508145454Ce325dDbE47a25d4ec3d2311933"
-check_contract(test_address)
+# Test amaçlı örnek bir akıllı kontrat kodu (Solidity)
+ornek_kontrat = """
+pragma solidity ^0.8.0;
+
+contract GuvensizKontrat {
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // Riskli Fonksiyon 1
+    function transferEt(address alici) public {
+        require(tx.origin == owner, "Yetkiniz yok!"); 
+        payable(alici).transfer(address(this).balance);
+    }
+
+    // Riskli Fonksiyon 2
+    function rastgeleSayiUret() public view returns (uint) {
+        return uint(keccak256(abi.encodePacked(block.timestamp))); 
+    }
+}
+"""
+
+if __name__ == "__main__":
+    dedektif = HermesDedektif()
+    dedektif.kontrat_analiz_et(ornek_kontrat)
+    
