@@ -1,28 +1,35 @@
 import re
+import os
 
 class HermesDedektif:
     def __init__(self):
-        # Taramak istediğimiz tehlikeli kalıplar ve açıklamaları
+        # Tarayacağımız kurallar
         self.guvenlik_kurallari = {
-            "tx.origin": "KRİTİK UYARI: Kimlik doğrulamada 'tx.origin' kullanımı tespit edildi. Phishing (kimlik avı) saldırılarına yol açabilir! Yerine 'msg.sender' kullanılmalı.",
-            "block.timestamp": "DÜŞÜK UYARI: 'block.timestamp' veya 'now' kullanımı tespit edildi. Madenciler (miners) tarafından manipüle edilebilir, hassas rastgele sayı üretiminde kullanılmamalı.",
-            "selfdestruct": "YÜKSEK UYARI: 'selfdestruct' fonksiyonu tespit edildi. Kontratın tamamen yok edilme ve fonların kilitlenme riski var."
+            "tx.origin": "KRİTİK UYARI: Kimlik doğrulamada 'tx.origin' kullanımı tespit edildi. Phishing saldırılarına yol açabilir! Yerine 'msg.sender' kullanılmalı.",
+            "block.timestamp": "DÜŞÜK UYARI: 'block.timestamp' manipüle edilebilir, hassas rastgele sayı üretiminde kullanılmamalı.",
+            "selfdestruct": "YÜKSEK UYARI: 'selfdestruct' fonksiyonu tespit edildi. Kontratın yok edilme ve fonların kilitlenme riski var."
         }
 
-    def kontrat_analiz_et(self, kontrat_kodu):
-        print("\n🕵️‍♂️ [Hermes Dedektif] Analiz Başlatılıyor...\n")
-        bulgular = []
+    def dosya_oku_ve_analiz_et(self, dosya_yolu):
+        if not os.path.exists(dosya_yolu):
+            print(f"❌ Hata: '{dosya_yolu}' dosyası bulunamadı!")
+            return
 
-        # Satır satır kodu incele
+        print(f"\n🕵️‍♂️ [Hermes Dedektif] '{dosya_yolu}' dosyası analiz ediliyor...\n")
+        
+        # Dosyayı aç ve oku
+        with open(dosya_yolu, "r", encoding="utf-8") as f:
+            kontrat_kodu = f.read()
+
+        bulgular = []
         satirlar = kontrat_kodu.split('\n')
+        
         for satir_no, satir in enumerate(satirlar, 1):
             for kural, aciklama in self.guvenlik_kurallari.items():
                 if kural in satir:
-                    # Yorum satırlarını pas geçmek için basit bir kontrol
                     if not satir.strip().startswith("//"):
                         bulgular.append(f"📌 Satır {satir_no}: {aciklama}\n   👉 Kod: {satir.strip()}")
 
-        # Sonuçları ekrana yazdır
         if bulgular:
             print(f"🚨 Toplam {len(bulgular)} adet potansiyel risk tespit edildi:\n")
             for bulgu in bulgular:
@@ -30,31 +37,10 @@ class HermesDedektif:
         else:
             print("✅ Harika! Temel güvenlik taramasında herhangi bir riskli kalıba rastlanmadı.")
 
-# Test amaçlı örnek bir akıllı kontrat kodu (Solidity)
-ornek_kontrat = """
-pragma solidity ^0.8.0;
-
-contract GuvensizKontrat {
-    address public owner;
-
-    constructor() {
-        owner = msg.sender;
-    }
-
-    // Riskli Fonksiyon 1
-    function transferEt(address alici) public {
-        require(tx.origin == owner, "Yetkiniz yok!"); 
-        payable(alici).transfer(address(this).balance);
-    }
-
-    // Riskli Fonksiyon 2
-    function rastgeleSayiUret() public view returns (uint) {
-        return uint(keccak256(abi.encodePacked(block.timestamp))); 
-    }
-}
-"""
-
 if __name__ == "__main__":
+    # Analiz etmek istediğimiz hedef dosya
+    hedef_dosya = "test_kontrat.sol"
+    
     dedektif = HermesDedektif()
-    dedektif.kontrat_analiz_et(ornek_kontrat)
+    dedektif.dosya_oku_ve_analiz_et(hedef_dosya)
     
