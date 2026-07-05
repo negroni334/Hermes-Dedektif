@@ -8,10 +8,7 @@ contract RiskliHavuz {
     }
 
     function AcilCikis() public {
-        // Kritik Hata 1
         require(tx.origin == yonetici, "Yetki yok");
-        
-        // Kritik Hata 2
         selfdestruct(payable(yonetici));
     }
 }
