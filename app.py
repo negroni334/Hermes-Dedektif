@@ -142,6 +142,7 @@ with col_right:
         if not input_clean.startswith("0x") or len(input_clean) != 42:
             st.warning("Please enter a valid 42-character Base contract address starting with 0x.")
         else:
+            # 🔥 Sayacı artırıyoruz ama alt kısımdaki st.rerun() kalktığı için döngüye girmeyecek
             total_global_scans = increment_total_scans()
             
             with st.spinner("🕵️‍♂️ Mapping bytecode blocks & inspecting token liquidity holders..."):
@@ -173,7 +174,6 @@ with col_right:
                     st.subheader("📊 ACTIVE INTELLIGENCE REPORT")
                     st.write("**Analysis Mode:** " + code_type)
                     
-                    # f-string yapıları tamamen kaldırıldı ve düz dize birleştirmesine geçildi
                     str_score = str(score)
                     if score >= 75:
                         st.success("SECURITY LEVEL: SECURE (LOW RISK) - SCORE: " + str_score + " / 100")
@@ -197,7 +197,6 @@ with col_right:
                                 mime="application/pdf"
                             )
                     st.markdown('</div>', unsafe_allow_html=True)
-                    st.rerun()
                     
                 except Exception as e:
                     st.error("An error occurred during the audit execution: " + str(e))
