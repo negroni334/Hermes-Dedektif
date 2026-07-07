@@ -98,7 +98,6 @@ with st.sidebar:
     visitors = st.session_state["visitor_log"]["24h_visitors"]
     total_scans = st.session_state["total_scans"]
     
-    # Parantez hatasını önlemek için f-string yerine normal dize birleştirme kullanıyoruz
     st.markdown("<div style='background: #030712; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.25); margin-bottom: 1rem;'><p style='margin:0; color:#94a3b8; font-size:0.8rem;'>🫵 24H UNIQUE VISITORS</p><h2 style='margin:0; color:#00f2fe; font-family:\"Share Tech Mono\"; font-size:2.2rem;'>" + str(visitors) + "</h2></div>", unsafe_allow_html=True)
     st.markdown("<div style='background: #030712; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.25); margin-bottom: 1rem;'><p style='margin:0; color:#94a3b8; font-size:0.8rem;'>⚡ TOTAL SECURITY SCANS</p><h2 style='margin:0; color:#ff007f; font-family:\"Share Tech Mono\"; font-size:2.2rem;'>" + str(total_scans) + "</h2></div>", unsafe_allow_html=True)
     
@@ -153,7 +152,6 @@ with col_right:
                     st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
                     st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>📊 ACTIVE INTELLIGENCE REPORT</h3>", unsafe_allow_html=True)
                     
-                    # Skor kartları için de düz dize birleştirme kullanarak güvenli hale getiriyoruz
                     if score >= 70:
                         st.markdown('<div style="background:rgba(16,185,129,0.1); border:2px solid #10b981; padding:1.5rem; border-radius:8px; text-align:center; box-shadow:0 0 15px rgba(16,185,129,0.3);"><h2 style="margin:0; font-size:3rem; color:#34d399; font-family:\'Share Tech Mono\';">' + str(score) + ' / 100</h2><strong style="color:#34d399;">SECURITY LEVEL: SECURE (LOW RISK)</strong></div>', unsafe_allow_html=True)
                     elif score >= 40:
@@ -162,4 +160,13 @@ with col_right:
                         st.markdown('<div style="background:rgba(239,68,68,0.1); border:2px solid #ef4444; padding:1.5rem; border-radius:8px; text-align:center; box-shadow:0 0 15px rgba(239,68,68,0.3);"><h2 style="margin:0; font-size:3rem; color:#f87171; font-family:\'Share Tech Mono\';">' + str(score) + ' / 100</h2><strong style="color:#f87171;">SECURITY LEVEL: CRITICAL VULNERABILITY DETECTED</strong></div>', unsafe_allow_html=True)
                     
                     if holder_data:
-                        st.markdown("<br><h4 style='color:#ffffff; font-family:\"
+                        st.markdown("<br><h4 style='color:#ffffff; font-family:\"Share Tech Mono\";'>📋 TOP HOLDERS LEDGER</h4>", unsafe_allow_html=True)
+                        df = pd.DataFrame(holder_data)
+                        st.dataframe(df, use_container_width=True)
+                    
+                    if pdf_path and os.path.exists(pdf_path):
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        with open(pdf_path, "rb") as f:
+                            st.download_button(
+                                label="📥 DOWNLOAD STANDALONE SECURITY AUDIT PDF",
+                                data=f
