@@ -107,6 +107,6 @@ st.markdown("""
     <br><br><hr style='border-color: #334155;'>
     <div style='display: flex; justify-content: space-between; color: #475569; font-size: 0.85rem;'>
         <div>🚀 Powered by Hermes Agent Accelerated Architecture & Base Protocol</div>
-        <div style='font-weight: bold; color: #3b82f6;'>⚙️ Founder: Baileys</div>
+        <div style='font-weight: bold; color: #3b82f6;'>⚙️ Founder: Baileys {NEGRONI]</div>
     </div>
 """, unsafe_allow_html=True)
