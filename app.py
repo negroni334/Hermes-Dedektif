@@ -126,4 +126,5 @@ st.markdown("""
 col_left, col_right = st.columns([2, 3], gap="large")
 
 with col_left:
-    st.markdown('<div class="cyber-panel">
+    st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:
