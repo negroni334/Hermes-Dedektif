@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import os
+import re
 from dotenv import load_dotenv
-from main import HermesAuditor
+from main import HermesAuditor  # Sınıfı içeri alıyoruz
 
 # ==========================================
 # 📊 GEÇİCİ VERİ TABANI (CANLI SAYAÇ SİSTEMİ)
@@ -126,49 +127,76 @@ with col_left:
         placeholder="Enter 0x... address here"
     )
     
-    st.write("")  # Güvenli boşluk
+    st.write("")  # Güvenli boşluk ayırıcı
     run_audit = st.button("RUN SECURITY TELEMETRY")
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_right:
     if run_audit:
-        if contract_address.strip() == "":
-            st.warning("Please enter a valid contract address.")
+        input_clean = contract_address.strip().lower()
+        if not input_clean.startswith("0x") or len(input_clean) != 42:
+            st.warning("Please enter a valid 42-character Base contract address starting with 0x.")
         else:
             st.session_state["total_scans"] += 1
             with st.spinner("🕵️‍♂️ Mapping bytecode blocks & inspecting token liquidity holders..."):
                 try:
+                    # 1. Auditor Nesnesini Başlatma
                     auditor_instance = HermesAuditor()
-                    pdf_path, score, holder_data = auditor_instance.audit(contract_address)
                     
+                    # 2. main.py Mantığı ile Veri Çekme Adımları
+                    code, code_type = auditor_instance.fetch_contract_source(input_clean)
+                    if not code:
+                        code, code_type = auditor_instance.fetch_contract_bytecode(input_clean)
+                    if not code:
+                        code = "HIDDEN_OR_EMPTY_TARGET"
+                        code_type = "Unknown / Unverified Structure (Kritik)"
+                        
+                    distribution_res = auditor_instance.analyze_token_distribution(input_clean)
+                    ai_report = auditor_instance.ai_deep_audit(code, code_type, distribution_res, input_clean)
+                    
+                    # 3. Rapor İçinden Skoru Çekme (main.py'deki mantık)
+                    score = 85
+                    for line in ai_report.split("\n"):
+                        if "Security Score" in line:
+                            numbers = re.findall(r'\d+', line)
+                            if numbers:
+                                score = int(numbers[0])
+                            break
+                    
+                    # 4. PDF Raporunu Sunucu Tarafında Oluşturma
+                    pdf_filename = f"Hermes_Audit_Report_{input_clean[:8]}.pdf"
+                    auditor_instance.build_pdf_report(pdf_filename, input_clean, distribution_res, ai_report, code_type)
+                    
+                    # Arayüz Paneli Çıktıları
                     st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
                     st.subheader("📊 ACTIVE INTELLIGENCE REPORT")
+                    st.write(f"**Analysis Mode:** {code_type}")
                     
-                    if score >= 70:
+                    if score >= 75:
                         st.success(f"SECURITY LEVEL: SECURE (LOW RISK) - SCORE: {score} / 100")
-                    elif score >= 40:
+                    elif score >= 50:
                         st.warning(f"SECURITY LEVEL: WARNING (MEDIUM RISK) - SCORE: {score} / 100")
                     else:
                         st.error(f"SECURITY LEVEL: CRITICAL VULNERABILITY DETECTED - SCORE: {score} / 100")
                     
-                    if holder_data:
+                    if distribution_res:
                         st.write("📋 TOP HOLDERS LEDGER")
-                        df = pd.DataFrame(holder_data)
+                        df = pd.DataFrame({"Holder Matrix Allocation Details": distribution_res})
                         st.dataframe(df, use_container_width=True)
                     
-                    if pdf_path and os.path.exists(pdf_path):
-                        st.write("")  # Güvenli boşluk
-                        with open(pdf_path, "rb") as f:
+                    if os.path.exists(pdf_filename):
+                        st.write("")
+                        with open(pdf_filename, "rb") as f:
                             st.download_button(
                                 label="📥 DOWNLOAD STANDALONE SECURITY AUDIT PDF",
                                 data=f.read(),
-                                file_name=os.path.basename(pdf_path),
+                                file_name=pdf_filename,
                                 mime="application/pdf"
                             )
                     st.markdown('</div>', unsafe_allow_html=True)
                     
                 except Exception as e:
-                    st.error(f"An error occurred during the audit: {str(e)}")
+                    st.error(f"An error occurred during the audit execution: {str(e)}")
     else:
         st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
         st.subheader("🖥️ CORE DETECTIVE TERMINAL")
