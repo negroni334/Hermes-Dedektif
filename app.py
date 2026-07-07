@@ -1,19 +1,16 @@
 import streamlit as st
 import pandas as pd
 import os
-import datetime
 from dotenv import load_dotenv
 from main import auditor  # Ana analiz motorun
 
 # ==========================================
 # 📊 GEÇİCİ VERİ TABANI (CANLI SAYAÇ SİSTEMİ)
 # ==========================================
-# Streamlit Cloud üzerinde uygulamanın hafızasında verileri tutar.
 if "total_scans" not in st.session_state:
-    st.session_state["total_scans"] = 42  # Projeye havalı bir başlangıç skoru
+    st.session_state["total_scans"] = 42
 
 if "visitor_log" not in st.session_state:
-    # Son 24 saatlik aktif kullanıcı simülasyon veri tabanı
     st.session_state["visitor_log"] = {
         "24h_visitors": 118,
         "live_nodes": 7
@@ -91,7 +88,6 @@ st.markdown("""
         color: #38bdf8;
     }
     
-    /* Canlı Sayaç Widget Alanı */
     .counter-widget {
         background: #030712; 
         padding: 1rem; 
@@ -103,12 +99,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 🟢 SOL MENÜ (SIDEBAR) - CANLI SAYAÇLARIN VE İSTATİSTİKLERİN OLDUĞU YER
+# 3. SOL MENÜ (SIDEBAR)
 with st.sidebar:
     st.markdown("<h2 style='color:#ff007f; font-family:\"Share Tech Mono\";'>🛰️ SYSTEM TELEMETRY</h2>", unsafe_allow_html=True)
     st.markdown("---")
     
-    # GERÇEK ZAMANLI KULLANICI VE ANALİZ SAYAÇLARI (EKRANI DOLDURAN YENİ ALAN)
     visitors = st.session_state["visitor_log"]["24h_visitors"]
     total_scans = st.session_state["total_scans"]
     
@@ -121,59 +116,4 @@ with st.sidebar:
             <p style='margin:0; color:#94a3b8; font-size:0.8rem;'>⚡ TOTAL SECURITY SCANS</p>
             <h2 style='margin:0; color:#ff007f; font-family:"Share Tech Mono"; font-size:2.2rem;'>{total_scans}</h2>
         </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Sistem Durumları
-    st.markdown("""
-        <div style='background:#030712; padding:0.8rem; border-radius:8px; border:1px solid #38bdf833; margin-bottom:1rem;'>
-            <p style='margin:0; color:#94a3b8; font-size:0.75rem;'>TELEMETRY NODE</p>
-            <h4 style='margin:0; color:#4ade80;'>🟢 ONLINE / MONITORING</h4>
-        </div>
-        <div style='background:#030712; padding:0.8rem; border-radius:8px; border:1px solid #38bdf833; margin-bottom:1rem;'>
-            <p style='margin:0; color:#94a3b8; font-size:0.75rem;'>TARGET GATEWAY</p>
-            <h4 style='margin:0; color:#38bdf8;'>⛓️ BASE MAINNET</h4>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("<p style='color:#4b5563; font-size:0.75rem; text-align:center;'>Real-time tracking ledger active. Powered by Streamlit Telemetry Engine.</p>", unsafe_allow_html=True)
-
-# ANA SAYFA ÜST BAŞLIK
-st.markdown("""
-    <div style='background: linear-gradient(90deg, #1e1b4b 0%, #0f172a 100%); border-left: 5px solid #ff007f; padding: 1.5rem 2rem; border-radius: 8px; margin-bottom: 2rem;'>
-        <h1 style='color: #ffffff; margin: 0; font-family: "Share Tech Mono", sans-serif; font-size: 2.8rem; letter-spacing: 3px;'>🕵️‍♂️ HERMES DETECTIVE</h1>
-        <p style='color: #00f2fe; font-size: 1.1rem; margin: 0.2rem 0 0 0; font-family: "JetBrains Mono", monospace;'>Autonomous Web3 Smart Contract Security Agent</p>
-    </div>
-""", unsafe_allow_html=True)
-
-# İKİ SÜTUNLU MERKEZİ PANEL DÜZENİ
-col_left, col_right = st.columns([2, 3], gap="large")
-
-with col_left:
-    st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
-    st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>🔒 INITIATE THREAT SCAN</h3>", unsafe_allow_html=True)
-    st.write("Deploy advanced semantic analysis and code-flow graph scanning to map vulnerabilities instantly.")
-    
-    contract_address = st.text_input(
-        "Target Base Deployment Address",
-        placeholder="Enter 0x... address here"
-    )
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    run_audit = st.button("RUN SECURITY TELEMETRY")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-with col_right:
-    if run_audit:
-        if contract_address.strip() == "":
-            st.warning("Please enter a valid contract address.")
-        else:
-            # Her başarılı taramada sayacı 1 artırıyoruz!
-            st.session_state["total_scans"] += 1
-            
-            with st.spinner("🕵️‍♂️ Mapping bytecode blocks & inspecting token liquidity holders..."):
-                try:
-                    pdf_path, score, holder_data = auditor(contract_address)
-                    
-                    st.markdown('<div class="cyber-
+    """, unsafe_
