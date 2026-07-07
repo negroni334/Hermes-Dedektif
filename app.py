@@ -1,100 +1,105 @@
-import os
 import streamlit as st
-from datetime import datetime
+import pandas as pd
+import os
 from dotenv import load_dotenv
-# main.py içindeki dedektif sınıfımızı doğrudan içeri aktarıyoruz
-from main import auditor
+from main import auditor  # Senin ana analiz motorun
 
-load_dotenv()
-
-# Web Sitesi Sayfa Ayarları (Koyu Tema ve Tarayıcı Başlığı)
+# 1. Sayfa Ayarlarını Kurumsal Yapalım
 st.set_page_config(
-    page_title="Hermes Smart Contract Security Detective",
+    page_title="Hermes Detective | Web3 Security",
     page_icon="🕵️‍♂️",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Arayüz Başlıkları ve Görsel Tasarım
-st.markdown("<h1 style='text-align: center; color: #1A365D;'>🕵️‍♂️ HERMES DETECTIVE</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center; color: #4A5568;'>Autonomous Web3 Smart Contract Security Agent</h3>", unsafe_allow_html=True)
-st.markdown("---")
+# 2. Özel Kurumsal CSS Teması (Göz Alıcı Siber Güvenlik Modu)
+st.markdown("""
+    <style>
+    /* Arka plan ve genel yazı renkleri */
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        color: #f8fafc;
+    }
+    
+    /* Input kutusunun tasarımı */
+    div[data-baseweb="input"] {
+        background-color: #1e293b !important;
+        border: 1px solid #3b82f6 !important;
+        border-radius: 10px !important;
+    }
+    
+    /* Run Security Audit Butonu Tasarımı */
+    div.stButton > button:first-child {
+        background: linear-gradient(90deg, #ef4444 0%, #cc1111 100%) !important;
+        color: white !important;
+        font-weight: bold !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 0.6rem 2rem !important;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4) !important;
+        transition: all 0.3s ease !important;
+    }
+    div.stButton > button:first-child:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6) !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-st.write("Enter any Base Blockchain contract address below to generate an objective, industry-grade security audit ledger.")
+# 3. Başlık Alanı
+col1, col2 = st.columns([1, 8])
+with col1:
+    st.markdown("<h1 style='font-size: 4.5rem; margin:0;'>🕵️‍♂️</h1>", unsafe_allow_html=True)
+with col2:
+    st.markdown("<h1 style='color: #3b82f6; margin-bottom: 0; padding-top: 10px;'>HERMES DETECTIVE</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #94a3b8; font-size: 1.1rem; margin-top:0;'>Autonomous Web3 Smart Contract Security Agent</p>", unsafe_allow_html=True)
 
-# Kullanıcı Giriş Alanı
-contract_address = st.text_input("Base Contract Address (0x...)", placeholder="0x833589fCD6eDb6E08f4c7C32D4f71b54bda02913").strip()
+st.markdown("<hr style='border-color: #334155;'>", unsafe_allow_html=True)
 
-if st.button("Run Security Audit", type="primary"):
-    if not contract_address.startswith("0x") or len(contract_address) != 42:
-        st.error("⚠️ Invalid address format. Please provide a valid 42-character Base network contract address.")
+# 4. Arama Alanı
+st.markdown("### 🔍 Scan Smart Contract")
+contract_address = st.text_input(
+    "Base Contract Address (0x...)",
+    placeholder="Enter Base Blockchain contract address to generate an objective, industry-grade security audit ledger."
+)
+
+# 5. Buton ve Backend Mantığı (Motorun Çalıştığı Yer)
+if st.button("Run Security Audit"):
+    if contract_address.strip() == "":
+        st.warning("Please enter a valid contract address.")
     else:
-        with st.spinner("Analyzing network layers, tracking top holders, and processing AI audit ledger..."):
-            # 1. Ağ katmanlarından kod veya bytecode katmanını çekelim
-            code, code_type = auditor.fetch_contract_source(contract_address)
-            if not code:
-                code, code_type = auditor.fetch_contract_bytecode(contract_address)
-            if not code:
-                code = "HIDDEN_OR_EMPTY_TARGET"
-                code_type = "Unknown / Unverified Structure (Kritik)"
-
-            # 2. Canlı Cüzdan ve Dağılım Analizini Yapalım
-            distribution_res = auditor.analyze_token_distribution(contract_address)
-
-            # 3. Yapay Zeka Ceza Puanlaması ve Denetim Sürecini Tetikleyelim
-            ai_report = auditor.ai_deep_audit(code, code_type, distribution_res, contract_address)
-
-            # Raporlama için PDF dosya adını belirleyelim
-            pdf_filename = f"Hermes_Web_Audit_{contract_address[:8]}.pdf"
-            
+        with st.spinner("🕵️‍♂️ Hermes Detective is analyzing the contract architecture, holder distributions, and compiler vulnerabilities..."):
             try:
-                # PDF raporunu arka planda oluşturalım
-                auditor.build_pdf_report(pdf_filename, contract_address, distribution_res, ai_report, code_type)
+                # Senin main.py içindeki auditor fonksiyonunu tetikliyoruz
+                pdf_path, score, holder_data = auditor(contract_address)
                 
-                # Ekranda Skor Gösterimi İçin Puanı Ayıklayalım
-                import re
-                score = "0"
-                for line in ai_report.split("\n"):
-                    if "Security Score" in line:
-                        numbers = re.findall(r'\d+', line)
-                        if numbers:
-                            score = numbers[0]
-                        break
-
-                score_val = int(score)
+                st.markdown("---")
+                st.success("Audit Completed Successfully!")
                 
-                # Dinamik Renk Belirleme
-                if score_val >= 75:
-                    st.success(f"### 🎉 Overall Security Score: {score_val} / 100 (Low Risk)")
-                elif score_val >= 50:
-                    st.warning(f"### ⚠️ Overall Security Score: {score_val} / 100 (Medium Risk)")
+                # Skor Gösterimi
+                if score >= 70:
+                    st.metric(label="Security Score", value=f"{score} / 100", delta="LOW RISK", delta_color="normal")
+                elif score >= 40:
+                    st.metric(label="Security Score", value=f"{score} / 100", delta="MEDIUM RISK", delta_color="off")
                 else:
-                    st.error(f"### 🚨 Overall Security Score: {score_val} / 100 (CRITICAL RISK)")
-
-                st.markdown("---")
+                    st.metric(label="Security Score", value=f"{score} / 100", delta="- CRITICAL RISK", delta_color="inverse")
                 
-                # Canlı Cüzdan Dağılım Verilerini Ekrana basalım
-                st.subheader("1. Live Wallet & Token Distribution Ledger")
-                for holder in distribution_res:
-                    st.write(f"• {holder}")
-
-                st.markdown("---")
-
-                # İndirme Butonu Ekleyelim (Kullanıcı PDF olarak indirebilsin)
-                with open(pdf_filename, "rb") as file:
-                    st.download_button(
-                        label="📥 Download Standalone PDF Audit Report",
-                        data=file,
-                        file_name=pdf_filename,
-                        mime="application/pdf",
-                        use_container_width=True
-                    )
+                # Cüzdan Dağılım Tablosu
+                if holder_data:
+                    st.markdown("### 📊 Top Token Holders Distribution")
+                    df = pd.DataFrame(holder_data)
+                    st.dataframe(df, use_container_width=True)
                 
-                # PDF oluştuktan sonra lokal temizlik yapalım
-                if os.path.exists(pdf_filename):
-                    os.remove(pdf_filename)
-
+                # PDF İndirme Butonu
+                if pdf_path and os.path.exists(pdf_path):
+                    with open(pdf_path, "rb") as f:
+                        st.download_button(
+                            label="📥 Download Standalone PDF Audit Report",
+                            data=f,
+                            file_name=os.path.basename(pdf_path),
+                            mime="application/pdf"
+                        )
             except Exception as e:
-                st.error(f"❌ An error occurred during report visualization: {str(e)}")
+                st.error(f"An error occurred during the audit: {str(e)}")
 
-st.markdown("<br/><br/><p style='text-align: center; color: #A0AEC0; font-size: 0.8em;'>Powered by Hermes Agent Accelerated Architecture & Base Protocol</p>", unsafe_allow_html=True)
+st.markdown("<br><br><p style='text-align: center; color: #475569; font-size: 0.8rem;'>Powered by Hermes Agent Accelerated Architecture & Base Protocol</p>", unsafe_allow_html=True)
