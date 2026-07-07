@@ -90,7 +90,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 🟢 SOL MENÜ (SIDEBAR)
+# 3. SOL MENÜ (SIDEBAR)
 with st.sidebar:
     st.markdown("<h2 style='color:#ff007f; font-family:\"Share Tech Mono\";'>🛰️ SYSTEM TELEMETRY</h2>", unsafe_allow_html=True)
     st.markdown("---")
@@ -98,8 +98,8 @@ with st.sidebar:
     v_count = st.session_state["visitor_log"]["24h_visitors"]
     s_count = st.session_state["total_scans"]
     
-    st.markdown(f"<div style='background: #030712; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.25); margin-bottom: 1rem;'><p style='margin:0; color:#94a3b8; font-size:0.8rem;'>🫵 24H UNIQUE VISITORS</p><h2 style='margin:0; color:#00f2fe; font-family:\"Share Tech Mono\"; font-size:2.2rem;'>{v_count}</h2></div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='background: #030712; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.25); margin-bottom: 1rem;'><p style='margin:0; color:#94a3b8; font-size:0.8rem;'>⚡ TOTAL SECURITY SCANS</p><h2 style='margin:0; color:#ff007f; font-family:\"Share Tech Mono\"; font-size:2.2rem;'>{s_count}</h2></div>", unsafe_allow_html=True)
+    st.markdown("<div style='background: #030712; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.25); margin-bottom: 1rem;'><p style='margin:0; color:#94a3b8; font-size:0.8rem;'>🫵 24H UNIQUE VISITORS</p><h2 style='margin:0; color:#00f2fe; font-family:\"Share Tech Mono\"; font-size:2.2rem;'>" + str(v_count) + "</h2></div>", unsafe_allow_html=True)
+    st.markdown("<div style='background: #030712; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.25); margin-bottom: 1rem;'><p style='margin:0; color:#94a3b8; font-size:0.8rem;'>⚡ TOTAL SECURITY SCANS</p><h2 style='margin:0; color:#ff007f; font-family:\"Share Tech Mono\"; font-size:2.2rem;'>" + str(s_count) + "</h2></div>", unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -126,37 +126,4 @@ st.markdown("""
 col_left, col_right = st.columns([2, 3], gap="large")
 
 with col_left:
-    st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
-    st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>🔒 INITIATE THREAT SCAN</h3>", unsafe_allow_html=True)
-    st.write("Deploy advanced semantic analysis and code-flow graph scanning to map vulnerabilities instantly.")
-    
-    contract_address = st.text_input(
-        "Target Base Deployment Address",
-        placeholder="Enter 0x... address here"
-    )
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    run_audit = st.button("RUN SECURITY TELEMETRY")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-with col_right:
-    if run_audit:
-        if contract_address.strip() == "":
-            st.warning("Please enter a valid contract address.")
-        else:
-            st.session_state["total_scans"] += 1
-            with st.spinner("🕵️‍♂️ Mapping bytecode blocks & inspecting token liquidity holders..."):
-                try:
-                    # Sınıfı initialize edip (başlatıp) içindeki audit metodunu çağırarak callable hatasını çözüyoruz
-                    auditor_instance = HermesAuditor()
-                    pdf_path, score, holder_data = auditor_instance.audit(contract_address)
-                    
-                    st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
-                    st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>📊 ACTIVE INTELLIGENCE REPORT</h3>", unsafe_allow_html=True)
-                    
-                    if score >= 70:
-                        st.markdown(f'<div style="background:rgba(16,185,129,0.1); border:2px solid #10b981; padding:1.5rem; border-radius:8px; text-align:center; box-shadow:0 0 15px rgba(16,185,129,0.3);"><h2 style="margin:0; font-size:3rem; color:#34d399; font-family:\'Share Tech Mono\';">{score} / 100</h2><strong style="color:#34d399;">SECURITY LEVEL: SECURE (LOW RISK)</strong></div>', unsafe_allow_html=True)
-                    elif score >= 40:
-                        st.markdown(f'<div style="background:rgba(245,158,11,0.1); border:2px solid #f59e0b; padding:1.5rem; border-radius:8px; text-align:center; box-shadow:0 0 15px rgba(245,158,11,0.3);"><h2 style="margin:0; font-size:3rem; color:#fbbf24; font-family:\'Share Tech Mono\';">{score} / 100</h2><strong style="color:#fbbf24;">SECURITY LEVEL: WARNING (MEDIUM RISK)</strong></div>', unsafe_allow_html=True)
-                    else:
-                        st.markdown(f'<div style="background:rgba(239,68,68,0.1); border:2px solid #ef4444; padding:1.
+    st.markdown('<div class="cyber-panel">
