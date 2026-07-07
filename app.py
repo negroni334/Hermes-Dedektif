@@ -166,12 +166,59 @@ with col_right:
                                 score = int(numbers[0])
                             break
                     
-                    pdf_filename = f"Hermes_Audit_Report_{input_clean[:8]}.pdf"
+                    pdf_filename = "Hermes_Audit_Report_" + input_clean[:8] + ".pdf"
                     auditor_instance.build_pdf_report(pdf_filename, input_clean, distribution_res, ai_report, code_type)
                     
                     st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
                     st.subheader("📊 ACTIVE INTELLIGENCE REPORT")
-                    st.write(f"**Analysis Mode:** {code_type}")
+                    st.write("**Analysis Mode:** " + code_type)
                     
+                    # f-string yapıları tamamen kaldırıldı ve düz dize birleştirmesine geçildi
+                    str_score = str(score)
                     if score >= 75:
-                        st.success(f"SECURITY LEVEL
+                        st.success("SECURITY LEVEL: SECURE (LOW RISK) - SCORE: " + str_score + " / 100")
+                    elif score >= 50:
+                        st.warning("SECURITY LEVEL: WARNING (MEDIUM RISK) - SCORE: " + str_score + " / 100")
+                    else:
+                        st.error("SECURITY LEVEL: CRITICAL VULNERABILITY DETECTED - SCORE: " + str_score + " / 100")
+                    
+                    if distribution_res:
+                        st.write("📋 TOP HOLDERS LEDGER")
+                        df = pd.DataFrame({"Holder Matrix Allocation Details": distribution_res})
+                        st.dataframe(df, use_container_width=True)
+                    
+                    if os.path.exists(pdf_filename):
+                        st.write("")
+                        with open(pdf_filename, "rb") as f:
+                            st.download_button(
+                                label="📥 DOWNLOAD STANDALONE SECURITY AUDIT PDF",
+                                data=f.read(),
+                                file_name=pdf_filename,
+                                mime="application/pdf"
+                            )
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    st.rerun()
+                    
+                except Exception as e:
+                    st.error("An error occurred during the audit execution: " + str(e))
+    else:
+        st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
+        st.subheader("🖥️ CORE DETECTIVE TERMINAL")
+        st.markdown("""
+<div class="cyber-terminal">
+    <p style="margin:0; color:#10b981;">[SYSTEM] Ready for target deployment allocation...</p>
+    <p style="margin:5px 0; color:#64748b;">[WAITING] Input valid Base smart contract address to execute telemetry.</p>
+    <p style="margin:5px 0; color:#64748b;">[INFO] Thread listeners mapped to BaseScan endpoints.</p>
+    <p style="margin:5px 0; color:#ff007f;">_ </p>
+</div>
+""", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# ALT BİLGİ VE KURUCU İMZASI
+st.markdown("""
+<br><hr style='border-color: #00f2fe33;'>
+<div style='display: flex; justify-content: space-between; color: #4b5563; font-size: 0.85rem; font-family: "JetBrains Mono", monospace; padding: 0 1rem;'>
+    <div>⚡ Powered by Hermes Agent Accelerated Architecture & Base Protocol</div>
+    <div style='font-weight: bold; color: #ff007f;'>🛡️ Founder: Baileys (Negroni)</div>
+</div>
+""", unsafe_allow_html=True)
