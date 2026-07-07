@@ -27,7 +27,7 @@ st.set_page_config(
 # Gelişmiş Kurumsal & Canlı CSS (Siber Güvenlik Dashboard Teması)
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Share+Tech+Mono&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght=400;700&family=Share+Tech+Mono&display=swap');
     
     .stApp {
         background: radial-gradient(circle at 50% 50%, #111827 0%, #030712 100%);
@@ -92,27 +92,18 @@ st.markdown("""
 
 # 3. SOL MENÜ (SIDEBAR)
 with st.sidebar:
-    st.markdown("<h2 style='color:#ff007f; font-family:\"Share Tech Mono\";'>🛰️ SYSTEM TELEMETRY</h2>", unsafe_allow_html=True)
+    st.title("🛰️ SYSTEM TELEMETRY")
     st.markdown("---")
     
     v_count = st.session_state["visitor_log"]["24h_visitors"]
     s_count = st.session_state["total_scans"]
     
-    st.markdown("<div style='background: #030712; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.25); margin-bottom: 1rem;'><p style='margin:0; color:#94a3b8; font-size:0.8rem;'>🫵 24H UNIQUE VISITORS</p><h2 style='margin:0; color:#00f2fe; font-family:\"Share Tech Mono\"; font-size:2.2rem;'>" + str(v_count) + "</h2></div>", unsafe_allow_html=True)
-    st.markdown("<div style='background: #030712; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.25); margin-bottom: 1rem;'><p style='margin:0; color:#94a3b8; font-size:0.8rem;'>⚡ TOTAL SECURITY SCANS</p><h2 style='margin:0; color:#ff007f; font-family:\"Share Tech Mono\"; font-size:2.2rem;'>" + str(s_count) + "</h2></div>", unsafe_allow_html=True)
+    st.metric(label="🫵 24H UNIQUE VISITORS", value=v_count)
+    st.metric(label="⚡ TOTAL SECURITY SCANS", value=s_count)
     
     st.markdown("---")
-    
-    st.markdown("""
-        <div style='background:#030712; padding:0.8rem; border-radius:8px; border:1px solid #38bdf833; margin-bottom:1rem;'>
-            <p style='margin:0; color:#94a3b8; font-size:0.75rem;'>TELEMETRY NODE</p>
-            <h4 style='margin:0; color:#4ade80;'>🟢 ONLINE / MONITORING</h4>
-        </div>
-        <div style='background:#030712; padding:0.8rem; border-radius:8px; border:1px solid #38bdf833; margin-bottom:1rem;'>
-            <p style='margin:0; color:#94a3b8; font-size:0.75rem;'>TARGET GATEWAY</p>
-            <h4 style='margin:0; color:#38bdf8;'>⛓️ BASE MAINNET</h4>
-        </div>
-    """, unsafe_allow_html=True)
+    st.success("🟢 TELEMETRY NODE: ONLINE")
+    st.info("⛓️ TARGET GATEWAY: BASE MAINNET")
 
 # ANA SAYFA ÜST BAŞLIK
 st.markdown("""
@@ -127,4 +118,43 @@ col_left, col_right = st.columns([2, 3], gap="large")
 
 with col_left:
     st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
-    st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:
+    st.subheader("🔒 INITIATE THREAT SCAN")
+    st.write("Deploy advanced semantic analysis and code-flow graph scanning to map vulnerabilities instantly.")
+    
+    contract_address = st.text_input(
+        "Target Base Deployment Address",
+        placeholder="Enter 0x... address here"
+    )
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    run_audit = st.button("RUN SECURITY TELEMETRY")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with col_right:
+    if run_audit:
+        if contract_address.strip() == "":
+            st.warning("Please enter a valid contract address.")
+        else:
+            st.session_state["total_scans"] += 1
+            with st.spinner("🕵️‍♂️ Mapping bytecode blocks & inspecting token liquidity holders..."):
+                try:
+                    auditor_instance = HermesAuditor()
+                    pdf_path, score, holder_data = auditor_instance.audit(contract_address)
+                    
+                    st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
+                    st.subheader("📊 ACTIVE INTELLIGENCE REPORT")
+                    
+                    if score >= 70:
+                        st.success(f"SECURITY LEVEL: SECURE (LOW RISK) - SCORE: {score} / 100")
+                    elif score >= 40:
+                        st.warning(f"SECURITY LEVEL: WARNING (MEDIUM RISK) - SCORE: {score} / 100")
+                    else:
+                        st.error(f"SECURITY LEVEL: CRITICAL VULNERABILITY DETECTED - SCORE: {score} / 100")
+                    
+                    if holder_data:
+                        st.write("📋 TOP HOLDERS LEDGER")
+                        df = pd.DataFrame(holder_data)
+                        st.dataframe(df, use_container_width=True)
+                    
+                    if pdf_path and os.path.exists(pdf_path):
+                        st.markdown("<br>", unsafe_allow_html
