@@ -208,6 +208,12 @@ class HermesAuditor:
             clean_ai_report.append(line)
         
         ai_report_filtered = "\n".join(clean_ai_report)
+        
+        # 🔥 REPORTLAB ETİKET HATALARINI ÖNLEYEN KRİTİK GÜVENLİK KATMANI
+        ai_report_filtered = ai_report_filtered.replace("<br>", "<br/>")
+        ai_report_filtered = re.sub(r'</para>', '', ai_report_filtered)
+        ai_report_filtered = re.sub(r'<para>', '', ai_report_filtered)
+        
         doc = SimpleDocTemplate(file_name, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
         
         title_style = ParagraphStyle('TitleStyle', fontName=SELECTED_FONT_BOLD, fontSize=16, textColor=colors.HexColor("#1A365D"), spaceAfter=15, alignment=1)
@@ -280,7 +286,8 @@ class HermesAuditor:
                 try:
                     story.append(Paragraph(p_text, p_style))
                 except:
-                    clean_p = p_text.replace("<b>", "").replace("</b>", "").replace("<br/>", " ")
+                    # Fallback layer: Eşleşmeyen sıra dışı etiket gelirse dümdüz metne düşür
+                    clean_p = re.sub(r'<[^>]*>', '', p_text)
                     story.append(Paragraph(clean_p, p_style))
                     
                 story.append(Spacer(1, 5))
