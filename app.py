@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from dotenv import load_dotenv
-from main import HermesAuditor  # Doğrudan sınıfı import ediyoruz
+from main import HermesAuditor
 
 # ==========================================
 # 📊 GEÇİCİ VERİ TABANI (CANLI SAYAÇ SİSTEMİ)
@@ -126,7 +126,7 @@ with col_left:
         placeholder="Enter 0x... address here"
     )
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.write("")  # Güvenli boşluk
     run_audit = st.button("RUN SECURITY TELEMETRY")
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -157,4 +157,36 @@ with col_right:
                         st.dataframe(df, use_container_width=True)
                     
                     if pdf_path and os.path.exists(pdf_path):
-                        st.markdown("<br>", unsafe_allow_html
+                        st.write("")  # Güvenli boşluk
+                        with open(pdf_path, "rb") as f:
+                            st.download_button(
+                                label="📥 DOWNLOAD STANDALONE SECURITY AUDIT PDF",
+                                data=f.read(),
+                                file_name=os.path.basename(pdf_path),
+                                mime="application/pdf"
+                            )
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    
+                except Exception as e:
+                    st.error(f"An error occurred during the audit: {str(e)}")
+    else:
+        st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
+        st.subheader("🖥️ CORE DETECTIVE TERMINAL")
+        st.markdown("""
+            <div class="cyber-terminal">
+                <p style="margin:0; color:#10b981;">[SYSTEM] Ready for target deployment allocation...</p>
+                <p style="margin:5px 0; color:#64748b;">[WAITING] Input valid Base smart contract address to execute telemetry.</p>
+                <p style="margin:5px 0; color:#64748b;">[INFO] Thread listeners mapped to BaseScan endpoints.</p>
+                <p style="margin:5px 0; color:#ff007f;">_ </p>
+            </div>
+        """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# SÜPER KUSURSUZ ALT BİLGİ VE KURUCU İMZASI
+st.markdown("""
+    <br><hr style='border-color: #00f2fe33;'>
+    <div style='display: flex; justify-content: space-between; color: #4b5563; font-size: 0.85rem; font-family: "JetBrains Mono", monospace; padding: 0 1rem;'>
+        <div>⚡ Powered by Hermes Agent Accelerated Architecture & Base Protocol</div>
+        <div style='font-weight: bold; color: #ff007f;'>🛡️ Founder: Baileys (Negroni)</div>
+    </div>
+""", unsafe_allow_html=True)
