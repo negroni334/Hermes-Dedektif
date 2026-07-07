@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from dotenv import load_dotenv
-from main import auditor  # Senin ana analiz motorun
+from main import auditor  # Ana analiz motorun
 
 # 1. Sayfa Ayarlarını Kurumsal Yapalım
 st.set_page_config(
@@ -70,7 +70,7 @@ if st.button("Run Security Audit"):
     else:
         with st.spinner("🕵️‍♂️ Hermes Detective is analyzing the contract architecture, holder distributions, and compiler vulnerabilities..."):
             try:
-                # Senin main.py içindeki auditor fonksiyonunu tetikliyoruz
+                # main.py içindeki auditor fonksiyonunu tetikliyoruz
                 pdf_path, score, holder_data = auditor(contract_address)
                 
                 st.markdown("---")
@@ -102,4 +102,11 @@ if st.button("Run Security Audit"):
             except Exception as e:
                 st.error(f"An error occurred during the audit: {str(e)}")
 
-st.markdown("<br><br><p style='text-align: center; color: #475569; font-size: 0.8rem;'>Powered by Hermes Agent Accelerated Architecture & Base Protocol</p>", unsafe_allow_html=True)
+# 6. Kurumsal Alt Bilgi ve Kurucu İmzası (Founder: Baileys)
+st.markdown("""
+    <br><br><hr style='border-color: #334155;'>
+    <div style='display: flex; justify-content: space-between; color: #475569; font-size: 0.85rem;'>
+        <div>🚀 Powered by Hermes Agent Accelerated Architecture & Base Protocol</div>
+        <div style='font-weight: bold; color: #3b82f6;'>⚙️ Founder: Baileys</div>
+    </div>
+""", unsafe_allow_html=True)
