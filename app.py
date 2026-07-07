@@ -124,4 +124,57 @@ with col_left:
     run_audit = st.button("RUN SECURITY AUDIT")
     st.markdown('</div>', unsafe_allow_html=True)
 
-with
+with col_right:
+    if run_audit:
+        if contract_address.strip() == "":
+            st.warning("Please enter a valid contract address.")
+        else:
+            with st.spinner("🕵️‍♂️ Analyzing smart contract architecture..."):
+                try:
+                    pdf_path, score, holder_data = auditor(contract_address)
+                    
+                    st.markdown('<div class="cyber-card">', unsafe_allow_html=True)
+                    st.markdown("### 📊 Audit Ledger Results")
+                    
+                    # Dinamik ve Canlı Skor Kutusu
+                    if score >= 70:
+                        st.markdown(f'<div class="score-box score-low"><h2 style="margin:0; font-size:2.5rem;">{score} / 100</h2><span style="font-size:1rem;">LOW RISK</span></div>', unsafe_allow_html=True)
+                    elif score >= 40:
+                        st.markdown(f'<div class="score-box score-medium"><h2 style="margin:0; font-size:2.5rem;">{score} / 100</h2><span style="font-size:1rem;">MEDIUM RISK</span></div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown(f'<div class="score-box score-critical"><h2 style="margin:0; font-size:2.5rem;">{score} / 100</h2><span style="font-size:1rem;">CRITICAL RISK</span></div>', unsafe_allow_html=True)
+                    
+                    # Cüzdan Dağılımı (Varsa)
+                    if holder_data:
+                        st.markdown("<br>➡️ **Top Holders Distribution:**", unsafe_allow_html=True)
+                        df = pd.DataFrame(holder_data)
+                        st.dataframe(df, use_container_width=True)
+                    
+                    # Rapor İndirme Butonu
+                    if pdf_path and os.path.exists(pdf_path):
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        with open(pdf_path, "rb") as f:
+                            st.download_button(
+                                label="📥 Download Standalone PDF Audit Report",
+                                data=f,
+                                file_name=os.path.basename(pdf_path),
+                                mime="application/pdf"
+                            )
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    
+                except Exception as e:
+                    st.error(f"An error occurred during the audit: {str(e)}")
+    else:
+        # Butona basılmadan önce sağ tarafta duracak kurumsal bekleme ekranı
+        st.markdown('<div class="cyber-card" style="text-align: center; padding: 4rem 2rem; color: #64748b;">', unsafe_allow_html=True)
+        st.markdown("🌐 <br><br> *Waiting for target deployment address to execute active intelligence telemetry.*", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# 5. Kurumsal Alt Bilgi ve Kurucu İmzası
+st.markdown("""
+    <br><hr style='border-color: rgba(59, 130, 246, 0.2);'>
+    <div style='display: flex; justify-content: space-between; color: #475569; font-size: 0.85rem; padding: 0 1rem;'>
+        <div>🚀 Powered by Hermes Agent Accelerated Architecture & Base Protocol</div>
+        <div style='font-weight: bold; color: #3b82f6; letter-spacing: 0.5px;'>⚙️ Founder: Baileys (Negroni)</div>
+    </div>
+""", unsafe_allow_html=True)
