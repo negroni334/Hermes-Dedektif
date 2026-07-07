@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from dotenv import load_dotenv
-from main import auditor  # Ana analiz motorun
+from main import HermesAuditor  # Doğrudan sınıfı import ediyoruz
 
 # ==========================================
 # 📊 GEÇİCİ VERİ TABANI (CANLI SAYAÇ SİSTEMİ)
@@ -90,7 +90,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. SOL MENÜ (SIDEBAR)
+# 🟢 SOL MENÜ (SIDEBAR)
 with st.sidebar:
     st.markdown("<h2 style='color:#ff007f; font-family:\"Share Tech Mono\";'>🛰️ SYSTEM TELEMETRY</h2>", unsafe_allow_html=True)
     st.markdown("---")
@@ -147,7 +147,9 @@ with col_right:
             st.session_state["total_scans"] += 1
             with st.spinner("🕵️‍♂️ Mapping bytecode blocks & inspecting token liquidity holders..."):
                 try:
-                    pdf_path, score, holder_data = auditor(contract_address)
+                    # Sınıfı initialize edip (başlatıp) içindeki audit metodunu çağırarak callable hatasını çözüyoruz
+                    auditor_instance = HermesAuditor()
+                    pdf_path, score, holder_data = auditor_instance.audit(contract_address)
                     
                     st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
                     st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>📊 ACTIVE INTELLIGENCE REPORT</h3>", unsafe_allow_html=True)
@@ -157,44 +159,4 @@ with col_right:
                     elif score >= 40:
                         st.markdown(f'<div style="background:rgba(245,158,11,0.1); border:2px solid #f59e0b; padding:1.5rem; border-radius:8px; text-align:center; box-shadow:0 0 15px rgba(245,158,11,0.3);"><h2 style="margin:0; font-size:3rem; color:#fbbf24; font-family:\'Share Tech Mono\';">{score} / 100</h2><strong style="color:#fbbf24;">SECURITY LEVEL: WARNING (MEDIUM RISK)</strong></div>', unsafe_allow_html=True)
                     else:
-                        st.markdown(f'<div style="background:rgba(239,68,68,0.1); border:2px solid #ef4444; padding:1.5rem; border-radius:8px; text-align:center; box-shadow:0 0 15px rgba(239,68,68,0.3);"><h2 style="margin:0; font-size:3rem; color:#f87171; font-family:\'Share Tech Mono\';">{score} / 100</h2><strong style="color:#f87171;">SECURITY LEVEL: CRITICAL VULNERABILITY DETECTED</strong></div>', unsafe_allow_html=True)
-                    
-                    if holder_data:
-                        st.markdown("<br><h4 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>📋 TOP HOLDERS LEDGER</h4>", unsafe_allow_html=True)
-                        df = pd.DataFrame(holder_data)
-                        st.dataframe(df, use_container_width=True)
-                    
-                    if pdf_path and os.path.exists(pdf_path):
-                        st.markdown("<br>", unsafe_allow_html=True)
-                        with open(pdf_path, "rb") as f:
-                            st.download_button(
-                                label="📥 DOWNLOAD STANDALONE SECURITY AUDIT PDF",
-                                data=f.read(),
-                                file_name=os.path.basename(pdf_path),
-                                mime="application/pdf"
-                            )
-                    st.markdown('</div>', unsafe_allow_html=True)
-                    
-                except Exception as e:
-                    st.error(f"An error occurred during the audit: {str(e)}")
-    else:
-        st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
-        st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>🖥️ CORE DETECTIVE TERMINAL</h3>", unsafe_allow_html=True)
-        st.markdown("""
-            <div class="cyber-terminal">
-                <p style="margin:0; color:#10b981;">[SYSTEM] Ready for target deployment allocation...</p>
-                <p style="margin:5px 0; color:#64748b;">[WAITING] Input valid Base smart contract address to execute telemetry.</p>
-                <p style="margin:5px 0; color:#64748b;">[INFO] Thread listeners mapped to BaseScan endpoints.</p>
-                <p style="margin:5px 0; color:#ff007f;">_ </p>
-            </div>
-        """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# SÜPER KUSURSUZ ALT BİLGİ VE KURUCU İMZASI
-st.markdown("""
-    <br><hr style='border-color: #00f2fe33;'>
-    <div style='display: flex; justify-content: space-between; color: #4b5563; font-size: 0.85rem; font-family: "JetBrains Mono", monospace; padding: 0 1rem;'>
-        <div>⚡ Powered by Hermes Agent Accelerated Architecture & Base Protocol</div>
-        <div style='font-weight: bold; color: #ff007f;'>🛡️ Founder: Baileys (Negroni)</div>
-    </div>
-""", unsafe_allow_html=True)
+                        st.markdown(f'<div style="background:rgba(239,68,68,0.1); border:2px solid #ef4444; padding:1.
