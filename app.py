@@ -4,124 +4,133 @@ import os
 from dotenv import load_dotenv
 from main import auditor  # Ana analiz motorun
 
-# 1. Sayfa Ayarları
+# 1. Sayfa Ayarları (Geniş Ekran)
 st.set_page_config(
-    page_title="Hermes Detective | Web3 Security",
+    page_title="Hermes Detective | Web3 Security Suite",
     page_icon="🕵️‍♂️",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
-# 2. Gelişmiş Kurumsal & Canlı CSS (Siber Güvenlik Dashboard Teması)
+# 2. Üst Düzey Siber Güvenlik CSS Kontrolleri
 st.markdown("""
     <style>
-    /* Arka Plan Geçişi */
+    /* Arka Plan ve Global Fontlar */
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Share+Tech+Mono&display=swap');
+    
     .stApp {
-        background: radial-gradient(circle at top right, #1e1b4b 0%, #0f172a 100%);
-        color: #f1f5f9;
-        font-family: 'Inter', sans-serif;
+        background: radial-gradient(circle at 50% 50%, #111827 0%, #030712 100%);
+        color: #00f2fe;
     }
     
-    /* Üst Başlık Alanı */
-    .header-container {
-        background: rgba(30, 41, 59, 0.4);
-        backdrop-filter: blur(10px);
-        padding: 2rem;
-        border-radius: 16px;
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        margin-bottom: 2rem;
-        text-align: center;
+    /* Sol Menü (Sidebar) Siber Tarz */
+    section[data-testid="stSidebar"] {
+        background-color: #0b0f19 !important;
+        border-right: 1px solid #00f2fe33 !important;
     }
     
-    /* Siber Kart Tasarımı (Glassmorphism) */
-    .cyber-card {
-        background: rgba(30, 41, 59, 0.4);
-        backdrop-filter: blur(10px);
+    /* Cam Efektli Ana Paneller (Glassmorphism + Neon Border) */
+    .cyber-panel {
+        background: rgba(17, 24, 39, 0.7);
+        backdrop-filter: blur(12px);
         padding: 2rem;
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        border: 1px solid #00f2fe44;
+        box-shadow: 0 0 20px rgba(0, 242, 254, 0.1);
         margin-bottom: 1.5rem;
     }
     
-    /* Giriş Alanı Özelleştirme */
+    /* Giriş Kutusu Tasarımı */
     div[data-baseweb="input"] {
-        background-color: #0f172a !important;
-        border: 1px solid #3b82f6 !important;
-        border-radius: 12px !important;
-        padding: 0.3rem !important;
+        background-color: #030712 !important;
+        border: 2px solid #00f2fe !important;
+        border-radius: 8px !important;
+        box-shadow: 0 0 10px rgba(0, 242, 254, 0.2) !important;
+    }
+    input {
+        color: #ffffff !important;
+        font-family: 'JetBrains Mono', monospace !important;
     }
     
-    /* Buton Tasarımı (Neon Kırmızı/Turuncu Patlamalı) */
+    /* Devasa Neon Audit Butonu */
     div.stButton > button:first-child {
-        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+        background: linear-gradient(135deg, #ff007f 0%, #7928ca 100%) !important;
         color: white !important;
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-        border-radius: 12px !important;
-        border: 1px solid #ef4444 !important;
-        padding: 0.8rem 2.5rem !important;
+        font-family: 'Share Tech Mono', sans-serif !important;
+        font-size: 1.3rem !important;
+        font-weight: bold !important;
+        letter-spacing: 2px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 1rem !important;
         width: 100%;
-        box-shadow: 0 0 15px rgba(220, 38, 38, 0.4) !important;
-        transition: all 0.3s ease-in-out !important;
+        box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
+        transition: all 0.3s ease !important;
     }
     div.stButton > button:first-child:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 0 25px rgba(220, 38, 38, 0.7) !important;
-        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+        transform: scale(1.02) !important;
+        box-shadow: 0 0 35px rgba(255, 0, 127, 0.8) !important;
     }
     
-    /* Canlı Skor Gösterge Kartı */
-    .score-box {
-        text-align: center;
-        padding: 2rem;
-        border-radius: 16px;
-        font-weight: bold;
-        margin-top: 1rem;
-    }
-    .score-critical {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid #ef4444;
-        color: #f87171;
-        box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
-    }
-    .score-medium {
-        background: rgba(245, 158, 11, 0.1);
-        border: 1px solid #f59e0b;
-        color: #fbbf24;
-        box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
-    }
-    .score-low {
-        background: rgba(16, 185, 129, 0.1);
-        border: 1px solid #10b981;
-        color: #34d399;
-        box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+    /* Terminal Görünümlü Bekleme Ekranı */
+    .cyber-terminal {
+        background-color: #030712;
+        border: 1px solid #3b82f644;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 1.5rem;
+        border-radius: 8px;
+        color: #38bdf8;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 3. Üst Başlık Paneli (Göz Alıcı Karşılama)
+# 3. SOL MENÜ (SIDEBAR) - EKRANI DOLDURAN CANLI BİLGİLER
+with st.sidebar:
+    st.markdown("<h2 style='color:#ff007f; font-family:\"Share Tech Mono\";'>🛰️ SYSTEM TELEMETRY</h2>", unsafe_allow_html=True)
+    st.markdown("---")
+    
+    # Durum Göstergeleri
+    st.markdown("""
+        <div style='background:#030712; padding:1rem; border-radius:8px; border:1px solid #38bdf833; margin-bottom:1rem;'>
+            <p style='margin:0; color:#94a3b8; font-size:0.8rem;'>AGENT STATUS</p>
+            <h3 style='margin:0; color:#4ade80;'>🟢 ONLINE / ACTIVE</h3>
+        </div>
+        <div style='background:#030712; padding:1rem; border-radius:8px; border:1px solid #38bdf833; margin-bottom:1rem;'>
+            <p style='margin:0; color:#94a3b8; font-size:0.8rem;'>TARGET NETWORK</p>
+            <h3 style='margin:0; color:#00f2fe;'>⛓️ BASE MAINNET</h3>
+        </div>
+        <div style='background:#030712; padding:1rem; border-radius:8px; border:1px solid #38bdf833; margin-bottom:1rem;'>
+            <p style='margin:0; color:#94a3b8; font-size:0.8rem;'>CORE AI ENGINE</p>
+            <h3 style='margin:0; color:#c084fc;'>🧠 HERMES INTEL v2</h3>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.markdown("<p style='color:#64748b; font-size:0.8rem;'>Security nodes globally deployed. Real-time smart contract exploit vector mapping active.</p>", unsafe_allow_html=True)
+
+# 4. ANA SAYFA ÜST BAŞLIK (Daha Dolgun ve Agresif)
 st.markdown("""
-    <div class="header-container">
-        <h1 style='color: #3b82f6; margin: 0; font-size: 3rem; letter-spacing: 2px;'>🕵️‍♂️ HERMES DETECTIVE</h1>
-        <p style='color: #94a3b8; font-size: 1.2rem; margin-top: 0.5rem;'>Autonomous Web3 Smart Contract Security Agent</p>
+    <div style='background: linear-gradient(90deg, #1e1b4b 0%, #0f172a 100%); border-left: 5px solid #ff007f; padding: 1.5rem 2rem; border-radius: 8px; margin-bottom: 2rem;'>
+        <h1 style='color: #ffffff; margin: 0; font-family: "Share Tech Mono", sans-serif; font-size: 2.8rem; letter-spacing: 3px;'>🕵️‍♂️ HERMES DETECTIVE</h1>
+        <p style='color: #00f2fe; font-size: 1.1rem; margin: 0.2rem 0 0 0; font-family: "JetBrains Mono", monospace;'>Autonomous Web3 Smart Contract Security Agent</p>
     </div>
 """, unsafe_allow_html=True)
 
-# 4. Yan Yana İki Sütunlu Düzen (Sol Taraf Giriş, Sağ Taraf Sonuçlar)
+# 5. İKİ SÜTUNLU MERKEZİ PANEL DÜZENİ
 col_left, col_right = st.columns([2, 3], gap="large")
 
 with col_left:
-    st.markdown('<div class="cyber-card">', unsafe_allow_html=True)
-    st.markdown("### 🔍 Security Scanner")
-    st.write("Analyze Base network smart contracts for compiler flaws, vulnerability vectors, and centralization risks instantly.")
+    st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>🔒 INITIATE THREAT SCAN</h3>", unsafe_allow_html=True)
+    st.write("Deploy advanced semantic analysis and code-flow graph scanning to map vulnerabilities instantly.")
     
     contract_address = st.text_input(
-        "Target Contract Address",
-        placeholder="Enter 0x... address"
+        "Target Base Deployment Address",
+        placeholder="Enter 0x... address here"
     )
     
-    run_audit = st.button("RUN SECURITY AUDIT")
+    st.markdown("<br>", unsafe_allow_html=True)
+    run_audit = st.button("RUN SECURITY TELEMETRY")
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_right:
@@ -129,33 +138,33 @@ with col_right:
         if contract_address.strip() == "":
             st.warning("Please enter a valid contract address.")
         else:
-            with st.spinner("🕵️‍♂️ Analyzing smart contract architecture..."):
+            with st.spinner("🕵️‍♂️ Mapping bytecode blocks & inspecting token liquidity holders..."):
                 try:
                     pdf_path, score, holder_data = auditor(contract_address)
                     
-                    st.markdown('<div class="cyber-card">', unsafe_allow_html=True)
-                    st.markdown("### 📊 Audit Ledger Results")
+                    st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
+                    st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>📊 ACTIVE INTELLIGENCE REPORT</h3>", unsafe_allow_html=True)
                     
-                    # Dinamik ve Canlı Skor Kutusu
+                    # Gösterişli Neon Skor Kartları
                     if score >= 70:
-                        st.markdown(f'<div class="score-box score-low"><h2 style="margin:0; font-size:2.5rem;">{score} / 100</h2><span style="font-size:1rem;">LOW RISK</span></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div style="background:rgba(16,185,129,0.1); border:2px solid #10b981; padding:1.5rem; border-radius:8px; text-align:center; box-shadow:0 0 15px rgba(16,185,129,0.3);"><h2 style="margin:0; font-size:3rem; color:#34d399; font-family:\'Share Tech Mono\';">{score} / 100</h2><strong style="color:#34d399;">SECURITY LEVEL: SECURE (LOW RISK)</strong></div>', unsafe_allow_html=True)
                     elif score >= 40:
-                        st.markdown(f'<div class="score-box score-medium"><h2 style="margin:0; font-size:2.5rem;">{score} / 100</h2><span style="font-size:1rem;">MEDIUM RISK</span></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div style="background:rgba(245,158,11,0.1); border:2px solid #f59e0b; padding:1.5rem; border-radius:8px; text-align:center; box-shadow:0 0 15px rgba(245,158,11,0.3);"><h2 style="margin:0; font-size:3rem; color:#fbbf24; font-family:\'Share Tech Mono\';">{score} / 100</h2><strong style="color:#fbbf24;">SECURITY LEVEL: WARNING (MEDIUM RISK)</strong></div>', unsafe_allow_html=True)
                     else:
-                        st.markdown(f'<div class="score-box score-critical"><h2 style="margin:0; font-size:2.5rem;">{score} / 100</h2><span style="font-size:1rem;">CRITICAL RISK</span></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div style="background:rgba(239,68,68,0.1); border:2px solid #ef4444; padding:1.5rem; border-radius:8px; text-align:center; box-shadow:0 0 15px rgba(239,68,68,0.3);"><h2 style="margin:0; font-size:3rem; color:#f87171; font-family:\'Share Tech Mono\';">{score} / 100</h2><strong style="color:#f87171;">SECURITY LEVEL: CRITICAL VULNERABILITY DETECTED</strong></div>', unsafe_allow_html=True)
                     
-                    # Cüzdan Dağılımı (Varsa)
+                    # Cüzdan Dağılım Tablosu
                     if holder_data:
-                        st.markdown("<br>➡️ **Top Holders Distribution:**", unsafe_allow_html=True)
+                        st.markdown("<br><h4 style='color:#ffffff; font-family:\"Share Tech Mono\";'>📋 TOP HOLDERS LEDGER</h4>", unsafe_allow_html=True)
                         df = pd.DataFrame(holder_data)
                         st.dataframe(df, use_container_width=True)
                     
-                    # Rapor İndirme Butonu
+                    # PDF İndirme Butonu
                     if pdf_path and os.path.exists(pdf_path):
                         st.markdown("<br>", unsafe_allow_html=True)
                         with open(pdf_path, "rb") as f:
                             st.download_button(
-                                label="📥 Download Standalone PDF Audit Report",
+                                label="📥 DOWNLOAD STANDALONE SECURITY AUDIT PDF",
                                 data=f,
                                 file_name=os.path.basename(pdf_path),
                                 mime="application/pdf"
@@ -165,16 +174,24 @@ with col_right:
                 except Exception as e:
                     st.error(f"An error occurred during the audit: {str(e)}")
     else:
-        # Butona basılmadan önce sağ tarafta duracak kurumsal bekleme ekranı
-        st.markdown('<div class="cyber-card" style="text-align: center; padding: 4rem 2rem; color: #64748b;">', unsafe_allow_html=True)
-        st.markdown("🌐 <br><br> *Waiting for target deployment address to execute active intelligence telemetry.*", unsafe_allow_html=True)
+        # Boşluğu mükemmel dolduran Hacker Terminali Görünümlü Bekleme Alanı
+        st.markdown('<div class="cyber-panel">', unsafe_allow_html=True)
+        st.markdown("<h3 style='color:#ffffff; font-family:\"Share Tech Mono\"; margin-top:0;'>🖥️ CORE DETECTIVE TERMINAL</h3>", unsafe_allow_html=True)
+        st.markdown("""
+            <div class="cyber-terminal">
+                <p style="margin:0; color:#10b981;">[SYSTEM] Ready for target deployment allocation...</p>
+                <p style="margin:5px 0; color:#64748b;">[WAITING] Input valid Base smart contract address to execute telemetry.</p>
+                <p style="margin:5px 0; color:#64748b;">[INFO] Thread listeners mapped to BaseScan endpoints.</p>
+                <p style="margin:5px 0; color:#ff007f;">_ </p>
+            </div>
+        """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-# 5. Kurumsal Alt Bilgi ve Kurucu İmzası
+# 6. SÜPER KUSURSUZ ALT BİLGİ VE KURUCU İMZASI
 st.markdown("""
-    <br><hr style='border-color: rgba(59, 130, 246, 0.2);'>
-    <div style='display: flex; justify-content: space-between; color: #475569; font-size: 0.85rem; padding: 0 1rem;'>
-        <div>🚀 Powered by Hermes Agent Accelerated Architecture & Base Protocol</div>
-        <div style='font-weight: bold; color: #3b82f6; letter-spacing: 0.5px;'>⚙️ Founder: Baileys (Negroni)</div>
+    <br><hr style='border-color: #00f2fe33;'>
+    <div style='display: flex; justify-content: space-between; color: #4b5563; font-size: 0.85rem; font-family: "JetBrains Mono", monospace; padding: 0 1rem;'>
+        <div>⚡ Powered by Hermes Agent Accelerated Architecture & Base Protocol</div>
+        <div style='font-weight: bold; color: #ff007f;'>🛡️ Founder: Baileys (Negroni)</div>
     </div>
 """, unsafe_allow_html=True)
