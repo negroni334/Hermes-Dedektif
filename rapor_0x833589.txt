@@ -1,0 +1,40 @@
+=================================================
+🕵️‍♂️ HERMES AKILLI KONTRAT GÜVENLİK DEDEKTİFİ RAPORU
+📅 Tarih: 2026-07-05 21:55:46
+🌐 Kontrat Adresi: 0x833589fCD6eDb6E08f4c7C32D4f71b54bda02913
+=================================================
+
+🤖 [Yerel Güvenlik Motoru Raporu]
+
+✅ Yapılan derin analizde herhangi bir zafiyet kalıbına rastlanmadı.
+
+-------------------------------------------------
+🤖 [Hermes AI Agent Derin Güvenlik Analizi]
+Verilen akıllı sözleşme kodu bir proxy modelini kullanmaktadır ve ana sözleşme `FiatTokenProxy`'dir. Bağlı olduğu `AdminUpgradeabilityProxy`, `UpgradeabilityProxy` ve `Proxy` sözleşmeleri ile `Address` kütüphanesi OpenZeppelin standartlarına uygun şekilde tasarlanmıştır. Bu yapılandırma genel olarak güvenli sayılmakla birlikte, dikkat edilmesi gereken bazı kritik noktalar bulunmaktadır.
+
+Aşağıda, incelenen kodda bulunan kritik riskler ve bunların düzeltilme yolları kısa, net ve profesyonel Türkçe ile sunulmuştur:
+
+---
+
+**Kritik Risk Raporu**
+
+**1. Risk: Yetkilendirme Açığı - `upgradeToAndCall` Fonksiyonunda Fon Sıkışması Potansiyeli**
+
+*   **Açıklama:** `AdminUpgradeabilityProxy` sözleşmesindeki `upgradeToAndCall` fonksiyonu, yeni bir implementasyon sözleşmesine yükseltme yaptıktan sonra, bu yeni implementasyon üzerinde belirtilen `data` ile bir fonksiyon çağrısı yapar. Bu çağrı `payable` anahtar kelimesiyle işaretlenmiştir (`address(this).call{value: msg.value}(data)`). Eğer kötü niyetli bir yönetici, yükseltme sırasında `msg.value` sıfırdan büyük olacak şekilde bu fonksiyonu çağırır ve `data` parametresi olarak hiçbir şey döndürmeyen, dolayısıyla `payable` olmayan bir fonksiyonun imzasını içeren kötü niyetli bir implementasyon sözleşmesindeki bir saldırgan kontrollü fonksiyonu çağırırsa, gönderilen fonlar (ETH) kilitlenebilir. `require(success);` kontrolü sadece çağrının başarılı olup olmadığını denetler, fonların doğru bir şekilde işlenip işlenmediğini veya geri alınabilir olup olmadığını garanti etmez.
+
+*   **Etki:** Yönetici tarafından yanlışlıkla veya kötü niyetli olarak gönderilen ETH'ler implementasyon sözleşmesinde kalıcı olarak sıkışabilir ve erişilemez hale gelebilir. Bu durum, projenin itibarını zedeleyebilir ve finansal kayıplara yol açabilir.
+
+*   **Düzeltme Önerisi:**
+    *   `upgradeToAndCall` fonksiyonunun mantığı yeniden değerlendirilmelidir. Yükseltme işlemi sırasında bir implementasyon fonksiyonuna değer (ETH) gönderme ihtiyacı genellikle yoktur. `call{value: msg.value}` kısmının tamamen kaldırılması veya `value`'nun zorla 0 olarak ayarlanması düşünülebilir.
+    *   Eğer fon gönderme yeteneği gerçekten gerekliyse, implementasyon sözleşmesinin atanacak fonksiyonun güvenli ve geri döndürülebilir olduğundan emin olunmalıdır. Ek olarak, bu fonksiyona sadece belirli, güvenilir adreslerin erişebileceği veya sadece `0 ETH` göndermeye izin veren bir kontrol mekanizması eklenebilir. Örneğin: `require(msg.value == 0, "ETH cannot be sent with upgradeToAndCall");` şeklinde bir kontrol eklenebilir.
+
+**2. Risk: Mantıksal Hata ve Yetkilendirme Riski - `_willFallback()` Fonksiyonundaki `msg.sender != _admin()` Kontrolü**
+
+*   **Açıklama:** `AdminUpgradeabilityProxy` sözleşmesindeki `_willFallback()` fonksiyonunda `require(msg.sender != _admin(), "Cannot call fallback function from the proxy admin");` kontrolü bulunmaktadır. Bu kontrol, proxy yöneticisinin fallback fonksiyonunu çağırmasını engellemeyi amaçlar, çünkü yöneticinin proxy'nin yönetici fonksiyonlarını doğrudan çağırması beklenir. Ancak bu durum, yönetici adresinin proxy üzerinden implementasyon sözleşmesindeki bazı fonksiyonları (özellikle `admin()` ve `implementation()` gibi genel erişimli view fonksiyonları dışındaki fonksiyonları) çağırmasını engelleyebilir. Implementasyon sözleşmesinde yöneticinin ihtiyaç duyabileceği başka fonksiyonlar varsa, bu kontrol onları engelleyecektir.
+
+*   **Etki:** Yönetici, implementasyon sözleşmesindeki bazı fonksiyonları proxy üzerinden çağıramayabilir. Bu, iş mantığının aksamasına veya belirli yönetimsel görevlerin yerine getirilememesine neden olabilir.
+
+*   **Düzeltme Önerisi:**
+    *   Yönetici doğrudan implementasyon sözleşmesi üzerinde işlem yapmıyorsa ve proxy üzerinden implementasyon sözleşmesinin fonksiyonlarına erişmeye ihtiyacı varsa, bu kısıtlama kaldırılmalıdır. Yöneticinin implementasyon fonksiyonlarına proxy aracılığıyla erişimi genellikle istenen bir durumdur.
+    *   Eğer bu kontrolün belirli
+=================================================
