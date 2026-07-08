@@ -11,17 +11,15 @@ st.sidebar.metric("Global Scans", f"{auditor.get_stats()}+")
 address = st.text_input("Enter Base Contract Address:")
 
 if st.button("RUN ANALYSIS"):
-    if not address:
-        st.warning("Lütfen geçerli bir adres gir.")
-    else:
-        auditor.increment_counter()
-        with st.spinner("Analyzing architecture..."):
-            code, status = auditor.fetch_contract_source(address)
-            if code:
-                risks = auditor.perform_audit(code)
-                if risks:
-                    st.error(f"🚨 RISKY FUNCTIONS: {', '.join(risks)}")
-                else:
-                    st.success("✅ Architecture Verified.")
+    auditor.increment_counter()
+    with st.spinner("Analyzing..."):
+        code, status = auditor.fetch_contract_source(address)
+        if code is not None:
+            risks = auditor.perform_audit(code)
+            if risks:
+                st.error(f"🚨 RISKY FUNCTIONS: {', '.join(risks)}")
             else:
-                st.error("❌ Veri çekilemedi. API Anahtarını veya Adresi kontrol et.")
+                st.success("✅ Architecture Verified.")
+        else:
+            st.error(f"❌ Veri çekilemedi: {status}")
+            st.info("İpucu: Adresin Base ağında olduğundan emin ol ve 0x ile başladığını kontrol et.")

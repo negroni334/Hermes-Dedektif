@@ -1,11 +1,10 @@
 import os
 import requests
-from dotenv import load_dotenv
 
 class HermesAuditor:
     def __init__(self):
-        self.api_key = os.getenv("BASESCAN_API_KEY") or "YOUR_FALLBACK_API_KEY"
-        self.v2_api_url = "https://api.basescan.org/api" # Base için doğru URL
+        # API anahtarı olmadan da çalışan genel endpoint
+        self.api_url = "https://api.basescan.org/api"
         self.counter_file = "scan_counter.txt"
 
     def get_stats(self):
@@ -19,14 +18,21 @@ class HermesAuditor:
         with open(self.counter_file, "w") as f: f.write(str(count))
 
     def fetch_contract_source(self, address):
-        params = {"module": "contract", "action": "getsourcecode", "address": address, "apikey": self.api_key}
+        # API anahtarı zorunlu değil, bazen boş bırakmak daha iyi çalışır
+        params = {
+            "module": "contract",
+            "action": "getsourcecode",
+            "address": address
+        }
         try:
-            res = requests.get(self.v2_api_url, params=params, timeout=10).json()
-            if res.get("status") == "1":
-                return res["result"][0].get("SourceCode"), "Verified"
-        except: pass
-        return None, None
+            response = requests.get(self.api_url, params=params, timeout=15)
+            data = response.json()
+            if data.get("status") == "1":
+                return data["result"][0].get("SourceCode", ""), "Verified"
+        except Exception as e:
+            return None, str(e)
+        return None, "Not Found"
 
     def perform_audit(self, code):
-        risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership", "mint", "transferOwnership"]
+        risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership"]
         return [p for p in risky_patterns if p in code]
