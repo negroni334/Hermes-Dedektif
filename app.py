@@ -13,12 +13,12 @@ address = st.text_input("Enter Base Contract Address:")
 if st.button("RUN ANALYSIS"):
     auditor.increment_counter()
     with st.spinner("Analyzing architecture..."):
-        code, _ = auditor.fetch_contract_source(address)
-        results = auditor.perform_audit(code or "")
-        
-        st.subheader("📊 Security Audit Report")
-        for category, items in results.items():
-            if items:
-                st.error(f"🚨 {category} Detected: {', '.join(items)}")
+        code, status = auditor.fetch_contract_source(address)
+        if code:
+            risks = auditor.perform_audit(code)
+            if risks:
+                st.error(f"🚨 RISKY FUNCTIONS DETECTED: {', '.join(risks)}")
             else:
-                st.success(f"✅ {category}: Clean")
+                st.success("✅ Architecture Verified - No common risky patterns found.")
+        else:
+            st.warning("Could not fetch contract source. Check address.")
