@@ -1,5 +1,4 @@
 import os
-import re
 import requests
 from dotenv import load_dotenv
 
@@ -21,9 +20,9 @@ class HermesAuditor:
         count = self.get_stats() + 1
         with open(self.counter_file, "w") as f: f.write(str(count))
 
-    def check_risks(self, code):
-        risky = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership"]
-        return [f for f in risky if f in code]
+    def check_risky_functions(self, code):
+        risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership"]
+        return [pattern for pattern in risky_patterns if pattern in code]
 
     def fetch_contract_source(self, address):
         params = {"chainid": "8453", "module": "contract", "action": "getsourcecode", "address": address, "apikey": self.api_key}

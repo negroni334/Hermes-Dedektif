@@ -4,7 +4,6 @@ from main import HermesAuditor
 st.set_page_config(page_title="Hermes Detective", layout="wide")
 auditor = HermesAuditor()
 
-# Sidebar - Founder ve Sayaç (Dünkü gibi)
 st.sidebar.title("🕵️‍♂️ Hermes Detective")
 st.sidebar.info("Founder: Baileys [NEGRONI]")
 st.sidebar.metric("Total Secured Assets", f"{auditor.get_stats()}+")
