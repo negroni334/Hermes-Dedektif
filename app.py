@@ -1,26 +1,24 @@
 import streamlit as st
 from main import HermesAuditor
 
-st.set_page_config(page_title="Hermes Enterprise", layout="wide")
-st.markdown("<style>.stApp {background-color: #050505; color: white;}</style>", unsafe_allow_html=True)
-
+st.set_page_config(page_title="Hermes Detective", layout="wide")
 auditor = HermesAuditor()
 
-st.title("HERMES | Enterprise Security")
-st.sidebar.metric("Total Secured Assets", f"{auditor.get_stats()}+")
+# Sidebar - Founder ve Sayaç (Dünkü gibi)
+st.sidebar.title("🕵️‍♂️ Hermes Detective")
 st.sidebar.info("Founder: Baileys [NEGRONI]")
+st.sidebar.metric("Total Secured Assets", f"{auditor.get_stats()}+")
 
-address = st.text_input("Enter Contract Address:")
+st.title("🌐 Security Audit Engine")
+address = st.text_input("Enter Base Contract Address:")
 
-if st.button("INITIALIZE DEEP SCAN"):
+if st.button("RUN ANALYSIS"):
     auditor.increment_counter()
     with st.spinner("Analyzing..."):
-        data = auditor.run_analysis(address)
+        code, ctype = auditor.fetch_contract_source(address)
+        risks = auditor.check_risky_functions(code or "")
         
-        c1, c2 = st.columns(2)
-        c1.metric("Security Score", f"{data['score']}/100")
-        c2.metric("Risk Status", "CRITICAL" if data['risks'] else "SECURE")
-        
-        if data['risks']:
-            st.error(f"🚨 RISKY FUNCTIONS FOUND: {', '.join(data['risks'])}")
-        st.success("Analysis Complete.")
+        if risks:
+            st.error(f"🚨 CRITICAL: RISKY FUNCTIONS DETECTED: {', '.join(risks)}")
+        else:
+            st.success("✅ Architecture Verified.")
