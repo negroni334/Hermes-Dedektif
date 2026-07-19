@@ -4,7 +4,7 @@ import requests
 class HermesAuditor:
     def __init__(self):
         self.api_url = "https://api.basescan.org/api"
-        self.api_key = "BURAYA_API_KEY_YAZ" # API anahtarını buraya koy
+        self.api_key = "N1WP7YTMQ31GWACX8FRDI4S9XBRZ33NXY6" # API anahtarını buraya koy
         self.counter_file = "scan_counter.txt"
 
     def get_stats(self):
