@@ -1,16 +1,13 @@
 import streamlit as st
 from main import HermesAuditor
 
-# Uygulama ayarları
 st.set_page_config(page_title="Hermes | Intelligence Terminal", layout="wide")
 auditor = HermesAuditor()
 
-# Yan panel
 st.sidebar.title("🕵️‍♂️ Hermes Intelligence")
 st.sidebar.metric("Global Scans", f"{auditor.get_stats()}+")
-st.sidebar.info("💡 Bu araç, herkese açık blokzincir verilerini analiz eder; varlık güvenliğini artırmaya odaklanır.")
+st.sidebar.info("💡 Bu araç, herkese açık blokzincir verilerini analiz eder.")
 
-# Ana arayüz
 address = st.text_input("Enter Target (Contract or Wallet):").strip()
 
 if st.button("EXECUTE ANALYSIS"):
@@ -21,19 +18,19 @@ if st.button("EXECUTE ANALYSIS"):
         with st.spinner("Deep Scanning..."):
             code, is_renounced = auditor.fetch_contract_details(address)
             
-            # 1. DURUM: Cüzdan ise bakiye göster
-            if code is None:
+            # 1. KESİN CÜZDAN İSE
+            if code == "IS_WALLET":
                 st.subheader("👤 Cüzdan Profil Analizi")
                 eth_bal, usd_val = auditor.fetch_wallet_balance(address)
                 col1, col2 = st.columns(2)
                 col1.metric("ETH Balance", f"{eth_bal:.6f} ETH")
                 col2.metric("Portfolio Value (USD)", f"${usd_val:,.2f}")
             
-            # 2. DURUM: Kontrat var ama kodu gizli/doğrulanmamış
+            # 2. DOĞRULANMAMIŞ KONTRAT İSE
             elif code == "UNVERIFIED_CONTRACT":
-                st.warning("⚠️ Bu bir sözleşme adresi ancak kaynak kodu Basescan üzerinde doğrulanmamış (Unverified). Kod okunamadığı için risk skoru hesaplanamıyor.")
+                st.warning("⚠️ Bu bir sözleşme adresi ancak kaynak kodu Basescan üzerinde doğrulanmamış (Unverified).")
             
-            # 3. DURUM: Her şey normalse Security Score göster
+            # 3. KONTRAT İSE (Security Score KESİN ÇIKACAK)
             else:
                 score, risks = auditor.calculate_score(code)
                 
