@@ -20,7 +20,7 @@ if st.button("EXECUTE SCAN"):
             if code == "WALLET_OR_UNKNOWN":
                 st.info("👤 Cüzdan Tespiti: Bu adres bir akıllı sözleşme değil, cüzdan (EOA).")
                 balance = auditor.fetch_wallet_balance(address)
-                st.metric("Cüzdan Bakiyesi", f"{balance:.4f} ETH")
+                st.metric("Cüzdan Bakiyesi", f"{balance:.8f} ETH")
             elif code == "ERROR":
                 st.error("❌ API Bağlantı Hatası.")
             else:

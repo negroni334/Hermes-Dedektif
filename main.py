@@ -17,15 +17,12 @@ class HermesAuditor:
         with open(self.counter_file, "w") as f: f.write(str(count))
 
     def fetch_contract_source(self, address):
-        # Önce sözleşme mi diye bak
         params = {"module": "contract", "action": "getsourcecode", "address": address}
         try:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
             if data.get("status") == "1" and data["result"][0].get("SourceCode"):
                 return data["result"][0]["SourceCode"], "Verified"
-            
-            # Sözleşme değilse veya kod yoksa, cüzdan mı diye kontrol et
             return "WALLET_OR_UNKNOWN", "Wallet"
         except:
             return "ERROR", "Error"
@@ -36,9 +33,9 @@ class HermesAuditor:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
             if data.get("status") == "1":
-                return int(data["result"]) / 10**18
-            return 0
-        except: return 0
+                return float(data["result"]) / 1e18
+            return 0.0
+        except: return 0.0
 
     def perform_audit(self, code):
         risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership", "mint"]
