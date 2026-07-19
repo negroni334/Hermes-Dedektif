@@ -4,8 +4,7 @@ import requests
 class HermesAuditor:
     def __init__(self):
         self.api_url = "https://api.basescan.org/api"
-        # BaseScan'den aldığın API Key'i buraya yaz (ücretsiz bir hesap açıp alabilirsin)
-        self.api_key = "N1WP7YTMQ31GWACX8FRDI4S9XBRZ33NXY6" 
+        self.api_key = "N1WP7YTMQ31GWACX8FRDI4S9XBRZ33NXY6"
         self.counter_file = "scan_counter.txt"
 
     def get_stats(self):
@@ -30,20 +29,22 @@ class HermesAuditor:
             return "ERROR", "Error"
 
     def fetch_wallet_balance(self, address):
+        # Base ağında bakiyeyi çekmek için en garantili yöntem
         params = {
-            "module": "account", 
-            "action": "balance", 
-            "address": address.strip().lower(), 
+            "module": "account",
+            "action": "balance",
+            "address": address.strip().lower(),
             "tag": "latest",
             "apikey": self.api_key
         }
         try:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
+            # API status "1" dönüyorsa işlem başarılıdır
             if data.get("status") == "1":
                 return float(data["result"]) / 1e18
             return 0.0
-        except: 
+        except Exception:
             return 0.0
 
     def perform_audit(self, code):
