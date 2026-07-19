@@ -17,13 +17,7 @@ if st.button("EXECUTE SCAN"):
         
         # EĞER HİÇBİR ŞEY BULAMAZSA
         if code == "NO_SOURCE":
-            st.warning("⚠️ CONTRACT STATUS: Unverified. Source code and ABI unavailable.")
+            st.error("❌ CRITICAL: Contract address does not exist or has no public data on BaseScan.")
+            st.info("💡 Not: Sadece 'Verified' kontratlar detaylı taramaya uygundur.")
         elif status == "ABI_ONLY":
-            st.info("🔍 STATUS: Partially Verified (ABI available).")
-            # ABI içinde riskli fonksiyon isimlerini ara
-            risks = auditor.perform_audit(code)
-            if risks: st.error(f"🚨 RISKY PATTERNS FOUND: {', '.join(risks)}")
-            else: st.success("✅ No suspicious patterns found in ABI.")
-        else:
-            risks = auditor.perform_audit(code)
-            # ... (diğer kodun aynı)
+            # ... (ABI kısmı)
