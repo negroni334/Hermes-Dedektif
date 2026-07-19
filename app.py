@@ -7,7 +7,7 @@ auditor = HermesAuditor()
 st.sidebar.title("🕵️‍♂️ Hermes Detective")
 st.sidebar.metric("Global Scans", f"{auditor.get_stats()}+")
 
-address = st.text_input("Enter Target Address (Base):")
+address = st.text_input("Enter Target Address (Base):").strip()
 
 if st.button("EXECUTE SCAN"):
     if not address.startswith("0x"):
