@@ -1,34 +1,34 @@
 import streamlit as st
 from main import HermesAuditor
 
-st.set_page_config(page_title="Hermes | Intelligence Terminal", layout="wide")
+st.set_page_config(page_title="Hermes | Security Audit", layout="wide")
 auditor = HermesAuditor()
 
-st.sidebar.title("🕵️‍♂️ Hermes Intelligence")
-st.sidebar.metric("Global Scans", f"{auditor.get_stats()}+")
-st.sidebar.info("💡 Bu araç, herkese açık blokzincir verilerini analiz eder; varlık güvenliğini artırmaya odaklanır.")
+st.sidebar.title("🕵️‍♂️ Hermes Security")
+address = st.text_input("Enter Target (Contract or Wallet):").strip()
 
-address = st.text_input("Enter Target Address (Base Mainnet):").strip()
-
-if st.button("EXECUTE ANALYSIS"):
-    if not address.startswith("0x"):
-        st.error("❌ Geçersiz adres formatı! 0x ile başlamalı.")
-    else:
-        auditor.increment_counter()
-        with st.spinner("Analyzing On-Chain Data..."):
-            code, status = auditor.fetch_contract_source(address)
+if st.button("RUN FULL AUDIT"):
+    auditor.increment_counter()
+    if address.startswith("0x"):
+        with st.spinner("Deep Scanning..."):
+            code, is_renounced = auditor.fetch_contract_details(address)
             
-            if code == "WALLET_OR_UNKNOWN":
-                st.subheader("👤 Cüzdan Profil Analizi")
-                eth_bal, usd_val = auditor.fetch_wallet_balance(address)
-                col1, col2 = st.columns(2)
-                col1.metric("ETH Balance", f"{eth_bal:.6f} ETH")
-                col2.metric("Portfolio Value (USD)", f"${usd_val:,.2f}")
-            elif code == "ERROR":
-                st.error("❌ API Bağlantı Hatası.")
+            if code is None:
+                st.info("👤 Cüzdan Tespiti: Bakiye analizi yapılıyor...")
+                eth, usd = auditor.fetch_wallet_balance(address)
+                st.metric("Balance", f"{eth:.6f} ETH", f"${usd:,.2f}")
             else:
-                risks = auditor.perform_audit(code)
-                if risks:
-                    st.error(f"🚨 RISKY PATTERNS FOUND: {', '.join(risks)}")
+                score, risks = auditor.calculate_score(code)
+                st.subheader("🛡️ Audit Score")
+                st.progress(score / 100)
+                st.metric("Security Score", f"{score}/100")
+                
+                if is_renounced:
+                    st.success("✅ Owner Renounced: Sözleşme yetkileri iptal edilmiş (Güvenli).")
                 else:
-                    st.success("✅ Clean Architecture: No common malicious patterns found.")
+                    st.warning("⚠️ Owner Active: Sözleşme sahibi hala kontrol sahibi.")
+                
+                if risks:
+                    st.error(f"🚨 Risks Detected: {', '.join(risks)}")
+                else:
+                    st.success("✅ Clean Code Architecture.")
