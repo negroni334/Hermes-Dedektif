@@ -16,21 +16,25 @@ if st.button("EXECUTE ANALYSIS"):
     else:
         auditor.increment_counter()
         with st.spinner("Deep Scanning..."):
+            
+            # 1. BÖLÜM: HER ZAMAN BAKİYE GÖSTER (Cüzdan veya Kontrat fark etmez)
+            st.subheader("💰 Varlık (Balance) Analizi")
+            eth_bal, usd_val = auditor.fetch_wallet_balance(address)
+            col1, col2 = st.columns(2)
+            col1.metric("ETH Balance", f"{eth_bal:.6f} ETH")
+            col2.metric("Portfolio Value (USD)", f"${usd_val:,.2f}")
+            
+            st.divider() # Araya şık bir çizgi atıyoruz
+            
+            # 2. BÖLÜM: GÜVENLİK SKORU (Sadece Kontratsa Çıkar)
             code, is_renounced = auditor.fetch_contract_details(address)
             
-            # 1. KESİN CÜZDAN İSE
             if code == "IS_WALLET":
-                st.subheader("👤 Cüzdan Profil Analizi")
-                eth_bal, usd_val = auditor.fetch_wallet_balance(address)
-                col1, col2 = st.columns(2)
-                col1.metric("ETH Balance", f"{eth_bal:.6f} ETH")
-                col2.metric("Portfolio Value (USD)", f"${usd_val:,.2f}")
+                st.info("ℹ️ Bu bir bireysel cüzdan (Wallet). Herhangi bir akıllı sözleşme kodu içermediği için güvenlik skoru aranmaz.")
             
-            # 2. DOĞRULANMAMIŞ KONTRAT İSE
             elif code == "UNVERIFIED_CONTRACT":
-                st.warning("⚠️ Bu bir sözleşme adresi ancak kaynak kodu Basescan üzerinde doğrulanmamış (Unverified).")
+                st.warning("⚠️ Bu bir sözleşme adresi ancak kaynak kodu Basescan üzerinde doğrulanmamış (Unverified). Kod okunamadığı için risk skoru hesaplanamıyor.")
             
-            # 3. KONTRAT İSE (Security Score KESİN ÇIKACAK)
             else:
                 score, risks = auditor.calculate_score(code)
                 
