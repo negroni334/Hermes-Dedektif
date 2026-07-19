@@ -34,7 +34,6 @@ class HermesAuditor:
         except: return 0.0, 0.0
 
     def fetch_contract_details(self, address):
-        # API anahtarı gerekebilir, ancak genel sorgu limitlerinde bazen kısıtlıyor olabilir
         params = {
             "module": "contract", 
             "action": "getsourcecode", 
@@ -44,23 +43,23 @@ class HermesAuditor:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
             
-            # Hata ayıklama için terminale yazdıralım
-            print(f"DEBUG DATA: {data}") 
-            
-            if data.get("status") == "1":
-                result = data["result"][0]
-                code = result.get("SourceCode", "")
-                if not code: return "NO_CODE", False
+            if data.get("status") == "1" and data.get("result"):
+                code = data["result"][0].get("SourceCode", "")
                 
+                # Kod boşsa veya doğrulanmamışsa özel durum döndür
+                if not code or "ContractSourceCodeNotVerified" in code:
+                    return "UNVERIFIED_CONTRACT", False
+                    
                 is_renounced = "renounceOwnership" in code or "0x0000000000000000000000000000000000000000" in code
                 return code, is_renounced
+            
             return None, False
-        except Exception as e:
-            print(f"HATA: {e}")
+        except Exception:
             return None, False
 
     def calculate_score(self, code):
-        if code == "NO_CODE": return 0, []
+        if code == "UNVERIFIED_CONTRACT" or code is None: 
+            return 0, []
         risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "mint", "transferOwnership"]
         score = 100
         found = [p for p in risky_patterns if p in code]
