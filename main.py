@@ -3,6 +3,7 @@ import requests
 
 class HermesAuditor:
     def __init__(self):
+        # BaseScan için en genel endpoint
         self.api_url = "https://api.basescan.org/api"
         self.counter_file = "scan_counter.txt"
 
@@ -17,24 +18,27 @@ class HermesAuditor:
         with open(self.counter_file, "w") as f: f.write(str(count))
 
     def fetch_contract_source(self, address):
-        # Kaynak kodu almayı dene
-        params = {"module": "contract", "action": "getsourcecode", "address": address}
+        # API'nin en yalın hali (apikey olmadan bazen daha iyi çalışır)
+        params = {
+            "module": "contract",
+            "action": "getsourcecode",
+            "address": address
+        }
         try:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
-            if data.get("status") == "1":
+            
+            # Veri gelirse
+            if data.get("status") == "1" and "result" in data:
                 source = data["result"][0].get("SourceCode", "")
-                # Eğer source boşsa (kapalıysa), bytecode'u dene
-                if not source or source == "__":
-                    bytecode = data["result"][0].get("ABI", "") # ABI üzerinden kontrol
-                    return bytecode, "ABI_ONLY"
-                return source, "Verified"
-        except: pass
-        return "NO_SOURCE", "Unverified"
+                if source: return source, "Verified"
+                else: return "NO_SOURCE", "Unverified"
+            
+            # Hata dönerse (veya adres geçersizse)
+            return "NO_SOURCE", "Unverified"
+        except:
+            return "NO_SOURCE", "Unverified"
 
     def perform_audit(self, code):
-        if code == "NO_SOURCE": 
-            return ["VERIFICATION_FAILED: Source code hidden or contract not on BaseScan."]
         risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership", "mint"]
-        found = [p for p in risky_patterns if p in code]
-        return found
+        return [p for p in risky_patterns if p in code]
