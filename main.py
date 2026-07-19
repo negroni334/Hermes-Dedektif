@@ -1,10 +1,12 @@
 import os
 import requests
+from web3 import Web3
 
 class HermesAuditor:
     def __init__(self):
+        # Base Mainnet RPC
+        self.w3 = Web3(Web3.HTTPProvider('https://mainnet.base.org'))
         self.api_url = "https://api.basescan.org/api"
-        self.api_key = "N1WP7YTMQ31GWACX8FRDI4S9XBRZ33NXY6" # API anahtarını buraya koy
         self.counter_file = "scan_counter.txt"
 
     def get_stats(self):
@@ -18,7 +20,7 @@ class HermesAuditor:
         with open(self.counter_file, "w") as f: f.write(str(count))
 
     def fetch_contract_source(self, address):
-        params = {"module": "contract", "action": "getsourcecode", "address": address.strip().lower(), "apikey": self.api_key}
+        params = {"module": "contract", "action": "getsourcecode", "address": address.strip().lower()}
         try:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
@@ -29,20 +31,10 @@ class HermesAuditor:
             return "ERROR", "Error"
 
     def fetch_wallet_balance(self, address):
-        # Bakiye sorgusunu API üzerinden yapıyoruz
-        params = {
-            "module": "account",
-            "action": "balance",
-            "address": address.strip().lower(),
-            "tag": "latest",
-            "apikey": self.api_key
-        }
         try:
-            response = requests.get(self.api_url, params=params, timeout=10)
-            data = response.json()
-            if data.get("status") == "1":
-                return float(data["result"]) / 1e18
-            return 0.0
+            checksum_address = Web3.to_checksum_address(address.strip())
+            balance_wei = self.w3.eth.get_balance(checksum_address)
+            return float(self.w3.from_wei(balance_wei, 'ether'))
         except Exception:
             return 0.0
 
