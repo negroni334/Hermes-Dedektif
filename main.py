@@ -28,7 +28,8 @@ class HermesAuditor:
         return "NO_SOURCE", "Unverified"
 
     def perform_audit(self, code):
-        if code == "NO_SOURCE": return ["Source code not verified or contract unindexed."]
+        if code == "NO_SOURCE": 
+            return ["VERIFICATION_FAILED: Source code hidden or contract not on BaseScan."]
         risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership", "mint"]
         found = [p for p in risky_patterns if p in code]
-        return found if found else []
+        return found
