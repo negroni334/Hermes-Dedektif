@@ -17,13 +17,18 @@ class HermesAuditor:
         with open(self.counter_file, "w") as f: f.write(str(count))
 
     def fetch_contract_source(self, address):
+        # Kaynak kodu almayı dene
         params = {"module": "contract", "action": "getsourcecode", "address": address}
         try:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
             if data.get("status") == "1":
                 source = data["result"][0].get("SourceCode", "")
-                return (source if source else "NO_SOURCE"), "Verified"
+                # Eğer source boşsa (kapalıysa), bytecode'u dene
+                if not source or source == "__":
+                    bytecode = data["result"][0].get("ABI", "") # ABI üzerinden kontrol
+                    return bytecode, "ABI_ONLY"
+                return source, "Verified"
         except: pass
         return "NO_SOURCE", "Unverified"
 
