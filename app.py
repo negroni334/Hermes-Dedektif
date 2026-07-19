@@ -21,8 +21,6 @@ if st.button("EXECUTE SCAN"):
                 st.info("👤 Cüzdan Tespiti: Bu adres bir akıllı sözleşme değil, cüzdan (EOA).")
                 balance = auditor.fetch_wallet_balance(address)
                 st.metric("Cüzdan Bakiyesi", f"{balance:.8f} ETH")
-                if balance == 0:
-                    st.warning("⚠️ Bakiye 0 görünüyor. API Key'in çalışıp çalışmadığını kontrol et.")
             elif code == "ERROR":
                 st.error("❌ API Bağlantı Hatası.")
             else:
