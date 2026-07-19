@@ -23,9 +23,9 @@ class HermesAuditor:
             data = response.json()
             if data.get("status") == "1":
                 source = data["result"][0].get("SourceCode", "")
-                return source if source else "NO_SOURCE"
+                return (source if source else "NO_SOURCE"), "Verified"
         except: pass
-        return "NO_SOURCE"
+        return "NO_SOURCE", "Unverified"
 
     def perform_audit(self, code):
         if code == "NO_SOURCE": return ["Source code not verified or contract unindexed."]
