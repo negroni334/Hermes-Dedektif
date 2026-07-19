@@ -5,3 +5,4 @@ python-dotenv
 reportlab
 streamlit
 streamlit-analytics2
+web3
