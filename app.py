@@ -21,15 +21,15 @@ if st.button("EXECUTE ANALYSIS"):
         with st.spinner("Deep Scanning..."):
             code, is_renounced = auditor.fetch_contract_details(address)
             
-            # Eğer kod dönmüyorsa cüzdan analizi yap
-            if code is None:
+            # Eğer kod None ise veya "NO_CODE" ise cüzdan olarak algıla
+            if code is None or code == "NO_CODE":
                 st.subheader("👤 Cüzdan Profil Analizi")
                 eth_bal, usd_val = auditor.fetch_wallet_balance(address)
                 col1, col2 = st.columns(2)
                 col1.metric("ETH Balance", f"{eth_bal:.6f} ETH")
                 col2.metric("Portfolio Value (USD)", f"${usd_val:,.2f}")
             
-            # Eğer kod dönüyorsa kontrat analizi yap
+            # Eğer geçerli bir kod bloğu dönüyorsa skorlama yap
             else:
                 score, risks = auditor.calculate_score(code)
                 
