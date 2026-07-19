@@ -3,7 +3,6 @@ import requests
 
 class HermesAuditor:
     def __init__(self):
-        # BaseScan için en genel endpoint
         self.api_url = "https://api.basescan.org/api"
         self.counter_file = "scan_counter.txt"
 
@@ -18,26 +17,28 @@ class HermesAuditor:
         with open(self.counter_file, "w") as f: f.write(str(count))
 
     def fetch_contract_source(self, address):
-        # API'nin en yalın hali (apikey olmadan bazen daha iyi çalışır)
-        params = {
-            "module": "contract",
-            "action": "getsourcecode",
-            "address": address
-        }
+        # Önce sözleşme mi diye bak
+        params = {"module": "contract", "action": "getsourcecode", "address": address}
         try:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
+            if data.get("status") == "1" and data["result"][0].get("SourceCode"):
+                return data["result"][0]["SourceCode"], "Verified"
             
-            # Veri gelirse
-            if data.get("status") == "1" and "result" in data:
-                source = data["result"][0].get("SourceCode", "")
-                if source: return source, "Verified"
-                else: return "NO_SOURCE", "Unverified"
-            
-            # Hata dönerse (veya adres geçersizse)
-            return "NO_SOURCE", "Unverified"
+            # Sözleşme değilse veya kod yoksa, cüzdan mı diye kontrol et
+            return "WALLET_OR_UNKNOWN", "Wallet"
         except:
-            return "NO_SOURCE", "Unverified"
+            return "ERROR", "Error"
+
+    def fetch_wallet_balance(self, address):
+        params = {"module": "account", "action": "balance", "address": address, "tag": "latest"}
+        try:
+            response = requests.get(self.api_url, params=params, timeout=10)
+            data = response.json()
+            if data.get("status") == "1":
+                return int(data["result"]) / 10**18
+            return 0
+        except: return 0
 
     def perform_audit(self, code):
         risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership", "mint"]
