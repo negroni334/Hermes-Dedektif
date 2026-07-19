@@ -3,7 +3,6 @@ import requests
 
 class HermesAuditor:
     def __init__(self):
-        # API anahtarı olmadan da çalışan genel endpoint
         self.api_url = "https://api.basescan.org/api"
         self.counter_file = "scan_counter.txt"
 
@@ -18,21 +17,18 @@ class HermesAuditor:
         with open(self.counter_file, "w") as f: f.write(str(count))
 
     def fetch_contract_source(self, address):
-        # API anahtarı zorunlu değil, bazen boş bırakmak daha iyi çalışır
-        params = {
-            "module": "contract",
-            "action": "getsourcecode",
-            "address": address
-        }
+        params = {"module": "contract", "action": "getsourcecode", "address": address}
         try:
-            response = requests.get(self.api_url, params=params, timeout=15)
+            response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
             if data.get("status") == "1":
-                return data["result"][0].get("SourceCode", ""), "Verified"
-        except Exception as e:
-            return None, str(e)
-        return None, "Not Found"
+                source = data["result"][0].get("SourceCode", "")
+                return source if source else "NO_SOURCE"
+        except: pass
+        return "NO_SOURCE"
 
     def perform_audit(self, code):
-        risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership"]
-        return [p for p in risky_patterns if p in code]
+        if code == "NO_SOURCE": return ["Source code not verified or contract unindexed."]
+        risky_patterns = ["setBlacklist", "blacklist", "setTax", "setFees", "renounceOwnership", "mint"]
+        found = [p for p in risky_patterns if p in code]
+        return found if found else []
