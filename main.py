@@ -4,6 +4,8 @@ import requests
 class HermesAuditor:
     def __init__(self):
         self.api_url = "https://api.basescan.org/api"
+        # BaseScan'den aldığın API Key'i buraya yaz (ücretsiz bir hesap açıp alabilirsin)
+        self.api_key = "YourApiKeyTokenHere" 
         self.counter_file = "scan_counter.txt"
 
     def get_stats(self):
@@ -17,7 +19,7 @@ class HermesAuditor:
         with open(self.counter_file, "w") as f: f.write(str(count))
 
     def fetch_contract_source(self, address):
-        params = {"module": "contract", "action": "getsourcecode", "address": address.strip().lower()}
+        params = {"module": "contract", "action": "getsourcecode", "address": address.strip().lower(), "apikey": self.api_key}
         try:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
@@ -28,16 +30,20 @@ class HermesAuditor:
             return "ERROR", "Error"
 
     def fetch_wallet_balance(self, address):
-        # Adresi temizle
-        clean_address = address.strip().lower()
-        url = f"https://api.basescan.org/api?module=account&action=balance&address={clean_address}&tag=latest"
+        params = {
+            "module": "account", 
+            "action": "balance", 
+            "address": address.strip().lower(), 
+            "tag": "latest",
+            "apikey": self.api_key
+        }
         try:
-            response = requests.get(url, timeout=10)
+            response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
             if data.get("status") == "1":
                 return float(data["result"]) / 1e18
             return 0.0
-        except Exception:
+        except: 
             return 0.0
 
     def perform_audit(self, code):
