@@ -17,7 +17,7 @@ class HermesAuditor:
         with open(self.counter_file, "w") as f: f.write(str(count))
 
     def fetch_contract_source(self, address):
-        params = {"module": "contract", "action": "getsourcecode", "address": address.lower()}
+        params = {"module": "contract", "action": "getsourcecode", "address": address.strip().lower()}
         try:
             response = requests.get(self.api_url, params=params, timeout=10)
             data = response.json()
@@ -28,14 +28,16 @@ class HermesAuditor:
             return "ERROR", "Error"
 
     def fetch_wallet_balance(self, address):
-        params = {"module": "account", "action": "balance", "address": address.lower(), "tag": "latest"}
+        # Adresi temizle
+        clean_address = address.strip().lower()
+        url = f"https://api.basescan.org/api?module=account&action=balance&address={clean_address}&tag=latest"
         try:
-            response = requests.get(self.api_url, params=params, timeout=10)
+            response = requests.get(url, timeout=10)
             data = response.json()
             if data.get("status") == "1":
                 return float(data["result"]) / 1e18
             return 0.0
-        except: 
+        except Exception:
             return 0.0
 
     def perform_audit(self, code):
